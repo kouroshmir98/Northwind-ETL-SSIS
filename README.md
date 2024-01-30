@@ -40,3 +40,7 @@ Here is a list of all connection managers which are used inside the project :
 
 ### 7 : Run PackageOrchestrator and deploy the project
 Running `PackageOrchestrator` package will run all packages.
+
+
+***In `queries/etlQueries.sql` you can find all sql queries which are used to create etl pipeline inside SSIS***
+
