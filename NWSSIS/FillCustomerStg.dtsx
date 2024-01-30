@@ -1,0 +1,1095 @@
+﻿<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="1/22/2024 6:32:05 PM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="LAPTOP-2HN1E0QR"
+  DTS:CreatorName="LAPTOP-2HN1E0QR\sw"
+  DTS:DTSID="{FF996035-8566-4FB6-B5A8-E025794ED158}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="16.0.5397.1"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="FillCustomerStg"
+  DTS:PackageType="5"
+  DTS:VersionBuild="5"
+  DTS:VersionGUID="{7C5C6B94-313D-4C48-8DEE-845B8734932A}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{3406D38D-5684-4DAA-982C-EAD9C899D71A}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="lastFetchedRowVer">
+      <DTS:VariableValue
+        DTS:DataType="4">0.</DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\CalculateCustomerStgHashesSqlTask"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{13008D13-82E6-42F3-BD99-BFEC3E9E734F}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="CalculateCustomerStgHashesSqlTask"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2022; © 2022 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{AA40BDAB-FCC2-48A7-AA16-B69FCDEA5776}"
+          SQLTask:SqlStatementSource="update NorthwindStg..customerStg&#xA;SET &#xA;    dataHash = &#xA;                HASHBYTES('SHA2_512' ,&#xA;                    CONCAT(customerName , &#xA;                            country , &#xA;                            city , &#xA;                            region , &#xA;                            postalCode)&#xA;                ),&#xA;    locationHash = &#xA;                    HASHBYTES('SHA2_512' ,&#xA;                        CONCAT(country , city , region)&#xA;                    )&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\GetCustomerDataDFTask"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{EF57C613-FA9F-42EF-B7C3-7F35347F97C0}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="GetCustomerDataDFTask"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          version="1">
+          <components>
+            <component
+              refId="Package\GetCustomerDataDFTask\Balanced Data Distributor"
+              componentClassID="Microsoft.BDD"
+              contactInfo="Balanced Data Distributor;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Evaluates and directs rows in a dataset to multiple destinations."
+              name="Balanced Data Distributor">
+              <inputs>
+                <input
+                  refId="Package\GetCustomerDataDFTask\Balanced Data Distributor.Inputs[Balanced Data Distributor Input]"
+                  description="Input to the Balanced Data      Distributor Transformation"
+                  name="Balanced Data Distributor Input">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\GetCustomerDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 1]"
+                  deleteOutputOnPathDetached="true"
+                  exclusionGroup="1"
+                  name="Balanced Data Distributor Output 1"
+                  synchronousInputId="Package\GetCustomerDataDFTask\Balanced Data Distributor.Inputs[Balanced Data Distributor Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\GetCustomerDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 2]"
+                  deleteOutputOnPathDetached="true"
+                  exclusionGroup="1"
+                  name="Balanced Data Distributor Output 2"
+                  synchronousInputId="Package\GetCustomerDataDFTask\Balanced Data Distributor.Inputs[Balanced Data Distributor Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\GetCustomerDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 3]"
+                  dangling="true"
+                  deleteOutputOnPathDetached="true"
+                  exclusionGroup="1"
+                  name="Balanced Data Distributor Output 3"
+                  synchronousInputId="Package\GetCustomerDataDFTask\Balanced Data Distributor.Inputs[Balanced Data Distributor Input]">
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\GetCustomerDataDFTask\FillCustomerStgDest"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="FillCustomerStgDest"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[dbo].[customerStg]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">true</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Connections[OleDbConnection]"
+                  connectionManagerID="{AA40BDAB-FCC2-48A7-AA16-B69FCDEA5776}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[LocalHost.NorthwindStg]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].Columns[CustomerID]"
+                      cachedDataType="wstr"
+                      cachedLength="5"
+                      cachedName="CustomerID"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].ExternalColumns[customerId]"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[CustomerID]" />
+                    <inputColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].Columns[customerName]"
+                      cachedDataType="wstr"
+                      cachedLength="40"
+                      cachedName="customerName"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].ExternalColumns[customerName]"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[customerName]" />
+                    <inputColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].Columns[country]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="country"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].ExternalColumns[country]"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[country]" />
+                    <inputColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].Columns[city]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="city"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].ExternalColumns[city]"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[city]" />
+                    <inputColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].Columns[region]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="region"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].ExternalColumns[region]"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[region]" />
+                    <inputColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].Columns[postalCode]"
+                      cachedDataType="wstr"
+                      cachedLength="10"
+                      cachedName="postalCode"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].ExternalColumns[postalCode]"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[postalCode]" />
+                    <inputColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].Columns[verRec]"
+                      cachedDataType="i8"
+                      cachedName="verRec"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].ExternalColumns[verRec]"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[verRec]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].ExternalColumns[customerId]"
+                      dataType="wstr"
+                      length="5"
+                      name="customerId" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].ExternalColumns[customerName]"
+                      dataType="wstr"
+                      length="40"
+                      name="customerName" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].ExternalColumns[city]"
+                      dataType="wstr"
+                      length="15"
+                      name="city" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].ExternalColumns[region]"
+                      dataType="wstr"
+                      length="15"
+                      name="region" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].ExternalColumns[country]"
+                      dataType="wstr"
+                      length="15"
+                      name="country" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].ExternalColumns[postalCode]"
+                      dataType="wstr"
+                      length="10"
+                      name="postalCode" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].ExternalColumns[verRec]"
+                      dataType="i8"
+                      name="verRec" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].ExternalColumns[locationHash]"
+                      dataType="bytes"
+                      length="64"
+                      name="locationHash" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input].ExternalColumns[dataHash]"
+                      dataType="bytes"
+                      length="64"
+                      name="dataHash" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="FillCustomerStgDest 1"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[dbo].[customerStg]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">true</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Connections[OleDbConnection]"
+                  connectionManagerID="{AA40BDAB-FCC2-48A7-AA16-B69FCDEA5776}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[LocalHost.NorthwindStg]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].Columns[CustomerID]"
+                      cachedDataType="wstr"
+                      cachedLength="5"
+                      cachedName="CustomerID"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[customerId]"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[CustomerID]" />
+                    <inputColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].Columns[customerName]"
+                      cachedDataType="wstr"
+                      cachedLength="40"
+                      cachedName="customerName"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[customerName]"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[customerName]" />
+                    <inputColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].Columns[country]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="country"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[country]"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[country]" />
+                    <inputColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].Columns[city]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="city"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[city]"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[city]" />
+                    <inputColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].Columns[region]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="region"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[region]"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[region]" />
+                    <inputColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].Columns[postalCode]"
+                      cachedDataType="wstr"
+                      cachedLength="10"
+                      cachedName="postalCode"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[postalCode]"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[postalCode]" />
+                    <inputColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].Columns[verRec]"
+                      cachedDataType="i8"
+                      cachedName="verRec"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[verRec]"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[verRec]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[customerId]"
+                      dataType="wstr"
+                      length="5"
+                      name="customerId" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[customerName]"
+                      dataType="wstr"
+                      length="40"
+                      name="customerName" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[city]"
+                      dataType="wstr"
+                      length="15"
+                      name="city" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[region]"
+                      dataType="wstr"
+                      length="15"
+                      name="region" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[country]"
+                      dataType="wstr"
+                      length="15"
+                      name="country" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[postalCode]"
+                      dataType="wstr"
+                      length="10"
+                      name="postalCode" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[verRec]"
+                      dataType="i8"
+                      name="verRec" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[locationHash]"
+                      dataType="bytes"
+                      length="64"
+                      name="locationHash" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[dataHash]"
+                      dataType="bytes"
+                      length="64"
+                      name="dataHash" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\GetCustomerDataDFTask\GetCustomerDataSource"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="OLE DB Source"
+              name="GetCustomerDataSource"
+              usesDispositions="true"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset"></property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">select 
+    CustomerID ,
+    CompanyName as customerName,
+    coalesce(Country ,'None') as country,
+    coalesce(City ,'None') as city,
+    coalesce(Region, 'None') as region,
+    coalesce(PostalCode , 'None') as postalCode ,
+    cast(verRec as bigint) as verRec  
+
+from Northwind..Customers
+WHERE verRec &gt; CAST( cast( ? as bigint) as timestamp)</property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">2</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping">"Parameter0:Input",{3406D38D-5684-4DAA-982C-EAD9C899D71A};</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Connections[OleDbConnection]"
+                  connectionManagerID="{FA27C073-7618-4C51-BD0B-1344F590F6C3}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[LocalHost.Northwind]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[CustomerID]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].ExternalColumns[CustomerID]"
+                      length="5"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[CustomerID]"
+                      name="CustomerID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[customerName]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].ExternalColumns[customerName]"
+                      length="40"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[customerName]"
+                      name="customerName"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[country]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].ExternalColumns[country]"
+                      length="15"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[country]"
+                      name="country"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[city]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].ExternalColumns[city]"
+                      length="15"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[city]"
+                      name="city"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[region]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].ExternalColumns[region]"
+                      length="15"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[region]"
+                      name="region"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[postalCode]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].ExternalColumns[postalCode]"
+                      length="10"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[postalCode]"
+                      name="postalCode"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[verRec]"
+                      dataType="i8"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].ExternalColumns[verRec]"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].Columns[verRec]"
+                      name="verRec"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].ExternalColumns[CustomerID]"
+                      dataType="wstr"
+                      length="5"
+                      name="CustomerID" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].ExternalColumns[customerName]"
+                      dataType="wstr"
+                      length="40"
+                      name="customerName" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].ExternalColumns[country]"
+                      dataType="wstr"
+                      length="15"
+                      name="country" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].ExternalColumns[city]"
+                      dataType="wstr"
+                      length="15"
+                      name="city" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].ExternalColumns[region]"
+                      dataType="wstr"
+                      length="15"
+                      name="region" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].ExternalColumns[postalCode]"
+                      dataType="wstr"
+                      length="10"
+                      name="postalCode" />
+                    <externalMetadataColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output].ExternalColumns[verRec]"
+                      dataType="i8"
+                      name="verRec" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Error Output].Columns[CustomerID]"
+                      dataType="wstr"
+                      length="5"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Error Output].Columns[CustomerID]"
+                      name="CustomerID" />
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Error Output].Columns[customerName]"
+                      dataType="wstr"
+                      length="40"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Error Output].Columns[customerName]"
+                      name="customerName" />
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Error Output].Columns[country]"
+                      dataType="wstr"
+                      length="15"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Error Output].Columns[country]"
+                      name="country" />
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Error Output].Columns[city]"
+                      dataType="wstr"
+                      length="15"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Error Output].Columns[city]"
+                      name="city" />
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Error Output].Columns[region]"
+                      dataType="wstr"
+                      length="15"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Error Output].Columns[region]"
+                      name="region" />
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Error Output].Columns[postalCode]"
+                      dataType="wstr"
+                      length="10"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Error Output].Columns[postalCode]"
+                      name="postalCode" />
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Error Output].Columns[verRec]"
+                      dataType="i8"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Error Output].Columns[verRec]"
+                      name="verRec" />
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\GetCustomerDataDFTask.Paths[Balanced Data Distributor Output 1]"
+              endId="Package\GetCustomerDataDFTask\FillCustomerStgDest.Inputs[OLE DB Destination Input]"
+              name="Balanced Data Distributor Output 1"
+              startId="Package\GetCustomerDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 1]" />
+            <path
+              refId="Package\GetCustomerDataDFTask.Paths[Balanced Data Distributor Output 2]"
+              endId="Package\GetCustomerDataDFTask\FillCustomerStgDest 1.Inputs[OLE DB Destination Input]"
+              name="Balanced Data Distributor Output 2"
+              startId="Package\GetCustomerDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 2]" />
+            <path
+              refId="Package\GetCustomerDataDFTask.Paths[OLE DB Source Output]"
+              endId="Package\GetCustomerDataDFTask\Balanced Data Distributor.Inputs[Balanced Data Distributor Input]"
+              name="OLE DB Source Output"
+              startId="Package\GetCustomerDataDFTask\GetCustomerDataSource.Outputs[OLE DB Source Output]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\GetLastRowVerCustomersSqlTask"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{A88D8F57-7169-498F-B962-32D41CA52846}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="GetLastRowVerCustomersSqlTask"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2022; © 2022 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{DF6F9E40-1A5E-475E-8637-E4626DEB6188}"
+          SQLTask:SqlStatementSource="SELECT&#xA;    lastFetchedRowVer&#xA;FROM NorthwindDWConf..DWConf&#xA;WHERE tableName = 'Customers'&#xA;"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="lastFetchedRowVer"
+            SQLTask:DtsVariableName="User::lastFetchedRowVer" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\TruncateCustomerStgSqlTask"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{ED86A28F-27B9-49E6-809B-3966B309496D}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="TruncateCustomerStgSqlTask"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2022; © 2022 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{AA40BDAB-FCC2-48A7-AA16-B69FCDEA5776}"
+          SQLTask:SqlStatementSource="TRUNCATE TABLE NorthwindStg..customerStg&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{FB82F6E4-A58B-40DA-93E9-3C13D266C66A}"
+      DTS:From="Package\TruncateCustomerStgSqlTask"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\GetCustomerDataDFTask" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
+      DTS:CreationName=""
+      DTS:DTSID="{A090F8AF-A398-47C4-A297-E8485E26F69F}"
+      DTS:From="Package\GetLastRowVerCustomersSqlTask"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 1"
+      DTS:To="Package\GetCustomerDataDFTask" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 2]"
+      DTS:CreationName=""
+      DTS:DTSID="{DE4D0441-0438-40CF-9975-B152AD007257}"
+      DTS:From="Package\GetCustomerDataDFTask"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 2"
+      DTS:To="Package\CalculateCustomerStgHashesSqlTask" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="236,41.6"
+          Id="Package\GetLastRowVerCustomersSqlTask"
+          TopLeft="5.5,5.50000000000007" />
+        <NodeLayout
+          Size="216.8,41.6"
+          Id="Package\TruncateCustomerStgSqlTask"
+          TopLeft="302.1,5.50000000000007" />
+        <NodeLayout
+          Size="196,41.6"
+          Id="Package\GetCustomerDataDFTask"
+          TopLeft="312.5,107.1" />
+        <NodeLayout
+          Size="251.2,41.6"
+          Id="Package\CalculateCustomerStgHashesSqlTask"
+          TopLeft="284.9,208.7" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="410.5,47.1000000000001">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="31.3333333333334,60"
+              Start="0,0"
+              End="31.3333333333334,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,31.7085020242915" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,31.7085020242915"
+                    Point2="0,35.7085020242915"
+                    Point3="4,35.7085020242915" />
+                  <mssgle:LineSegment
+                    End="27.3333333333334,35.7085020242915" />
+                  <mssgle:CubicBezierSegment
+                    Point1="27.3333333333334,35.7085020242915"
+                    Point2="31.3333333333334,35.7085020242915"
+                    Point3="31.3333333333334,39.7085020242915" />
+                  <mssgle:LineSegment
+                    End="31.3333333333334,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 1]"
+          TopLeft="123.5,47.1000000000001">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="255.666666666667,60"
+              Start="0,0"
+              End="255.666666666667,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,31.7085020242915" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,31.7085020242915"
+                    Point2="0,35.7085020242915"
+                    Point3="4,35.7085020242915" />
+                  <mssgle:LineSegment
+                    End="251.666666666667,35.7085020242915" />
+                  <mssgle:CubicBezierSegment
+                    Point1="251.666666666667,35.7085020242915"
+                    Point2="255.666666666667,35.7085020242915"
+                    Point3="255.666666666667,39.7085020242915" />
+                  <mssgle:LineSegment
+                    End="255.666666666667,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 2]"
+          TopLeft="410.5,148.7">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+  <TaskHost
+    design-time-name="Package\GetCustomerDataDFTask">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        <NodeLayout
+          Size="193.6,41.6"
+          Id="Package\GetCustomerDataDFTask\GetCustomerDataSource"
+          TopLeft="228.1,5.49999999999995" />
+        <NodeLayout
+          Size="172.8,41.6"
+          Id="Package\GetCustomerDataDFTask\FillCustomerStgDest"
+          TopLeft="5.50000000000003,208.7" />
+        <NodeLayout
+          Size="172.8,41.6"
+          Id="Package\GetCustomerDataDFTask\FillCustomerStgDest 1"
+          TopLeft="271.039682608951,204.451633990652" />
+        <NodeLayout
+          Size="198.4,41.6"
+          Id="Package\GetCustomerDataDFTask\Balanced Data Distributor"
+          TopLeft="214.365079821406,94.7385620084612" />
+        <EdgeLayout
+          Id="Package\GetCustomerDataDFTask.Paths[OLE DB Source Output]"
+          TopLeft="324.9,47.1">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-11.3349201785937,47.6385620084613"
+              Start="0,0"
+              End="-11.3349201785937,40.1385620084613">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,19.8192810042306" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,19.8192810042306"
+                    Point2="0,23.8192810042306"
+                    Point3="-4,23.8192810042306" />
+                  <mssgle:LineSegment
+                    End="-7.33492017859368,23.8192810042306" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-7.33492017859368,23.8192810042306"
+                    Point2="-11.3349201785937,23.8192810042306"
+                    Point3="-11.3349201785937,27.8192810042306" />
+                  <mssgle:LineSegment
+                    End="-11.3349201785937,40.1385620084613" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\GetCustomerDataDFTask.Paths[Balanced Data Distributor Output 1]"
+          TopLeft="313.565079821406,136.338562008461">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-221.665079821406,72.3614379915385"
+              Start="0,0"
+              End="-221.665079821406,64.8614379915385">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,32.1807189957693" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,32.1807189957693"
+                    Point2="0,36.1807189957693"
+                    Point3="-4,36.1807189957693" />
+                  <mssgle:LineSegment
+                    End="-217.665079821406,36.1807189957693" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-217.665079821406,36.1807189957693"
+                    Point2="-221.665079821406,36.1807189957693"
+                    Point3="-221.665079821406,40.1807189957693" />
+                  <mssgle:LineSegment
+                    End="-221.665079821406,64.8614379915385" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-188.533106316953,41.1807189957693,155.4011328125,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\GetCustomerDataDFTask.Paths[Balanced Data Distributor Output 2]"
+          TopLeft="345.29841315474,136.338562008461">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="12.1412694542113,68.1130719821905"
+              Start="0,0"
+              End="12.1412694542113,60.6130719821905">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,23.5721715383907" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,23.5721715383907"
+                    Point2="0,27.5721715383907"
+                    Point3="4,27.5721715383907" />
+                  <mssgle:LineSegment
+                    End="8.14126945421134,27.5721715383907" />
+                  <mssgle:CubicBezierSegment
+                    Point1="8.14126945421134,27.5721715383907"
+                    Point2="12.1412694542113,27.5721715383907"
+                    Point3="12.1412694542113,31.5721715383907" />
+                  <mssgle:LineSegment
+                    End="12.1412694542113,60.6130719821905" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-71.8154785541443,32.5721715383907,155.7722265625,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\GetCustomerDataDFTask\GetCustomerDataSource">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\GetCustomerDataDFTask\FillCustomerStgDest">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>

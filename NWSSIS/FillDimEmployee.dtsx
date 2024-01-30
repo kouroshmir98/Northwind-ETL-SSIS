@@ -1,0 +1,1758 @@
+﻿<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="1/22/2024 4:31:06 PM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="LAPTOP-2HN1E0QR"
+  DTS:CreatorName="LAPTOP-2HN1E0QR\sw"
+  DTS:DTSID="{0201F50A-5904-41B1-B2A8-36D10EEFD920}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="16.0.5397.1"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="FillDimEmployee"
+  DTS:PackageType="5"
+  DTS:VersionBuild="19"
+  DTS:VersionGUID="{7EB092EB-D9D5-4B16-B446-C0624C7972B9}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{E7EE8190-5E7F-46FA-A942-20D8670D4B87}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="lastFetchedRowVer">
+      <DTS:VariableValue
+        DTS:DataType="8"
+        xml:space="preserve"></DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\CalculateEmployeeStgHashesSqlTask"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{3F21EC53-CCC2-4F2A-9FD5-0DBC06911FE8}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="CalculateEmployeeStgHashesSqlTask"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2022; © 2022 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{AA40BDAB-FCC2-48A7-AA16-B69FCDEA5776}"
+          SQLTask:SqlStatementSource="Update NorthwindStg..employeeStg&#xA;SET dataHash = &#xA;                HASHBYTES('SHA2_512',&#xA;                            CONCAT(&#xA;                                    COALESCE(managerId ,0) ,&#xA;                                    lastName , &#xA;                                    firstName ,&#xA;                                    title ,&#xA;                                    titleOfCourtesy ,&#xA;                                    birthDate ,&#xA;                                    hireDate ,&#xA;                                    country ,&#xA;                                    region ,&#xA;                                    city ,&#xA;                                    postalCode&#xA;                                )&#xA;                        )&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\FillDimEmployeeSqlTask"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{A602970F-C64F-471D-A8C6-5F2738BE853C}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="FillDimEmployeeSqlTask"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2022; © 2022 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{C9F47B1D-36EF-4BF2-B09C-BAD7F016E6DB}"
+          SQLTask:SqlStatementSource="with sourceData as (&#xA;    select&#xA;        employeeId as employeeKey , &#xA;        employeeId as employeeBK ,&#xA;        managerId , &#xA;        lastName , &#xA;        firstName , &#xA;        title , &#xA;        CASE &#xA;            when titleOfCourtesy = 'Mrs.' or titleOfCourtesy = 'Ms.' then 'Female'&#xA;            when  titleOfCourtesy = 'Mr.' then 'Male'&#xA;            else 'None'&#xA;        END as gender , &#xA;        birthDate ,&#xA;        hireDate , &#xA;        country , &#xA;        city ,&#xA;        region , &#xA;        postalCode , &#xA;        dataHash , &#xA;        verRec&#xA;    from NorthwindStg..employeeStg)&#xA;MERGE NorthwindDW..dimEmployee as t USING sourceData as s&#xA;ON s.employeeBK = t.employeeBK&#xA;WHEN MATCHED AND (s.dataHash != t.dataHash)&#xA;    THEN UPDATE &#xA;        SET&#xA;            t.managerId = s.managerId  ,&#xA;            t.lastName = s.lastName  ,&#xA;            t.firstName = s.firstName  ,&#xA;            t.title = s.title  ,&#xA;            t.gender = s.gender  ,&#xA;            t.birthDate = s.birthDate  ,&#xA;            t.hireDate = s.hireDate  ,&#xA;            t.country = s.country  ,&#xA;            t.city = s.city  ,&#xA;            t.region = s.region  ,&#xA;            t.postalCode = s.postalCode  ,&#xA;            t.dataHash = s.dataHash ,&#xA;            t.verRec = s.verRec  ,&#xA;            t.fetchedAt  = GETDATE()&#xA;&#xA;WHEN NOT MATCHED BY TARGET &#xA;    THEN INSERT (&#xA;                employeeKey , &#xA;                employeeBK ,&#xA;                managerId ,&#xA;                lastName ,&#xA;                firstName ,&#xA;                title ,&#xA;                gender ,&#xA;                birthDate ,&#xA;                hireDate ,&#xA;                country ,&#xA;                city ,&#xA;                region ,&#xA;                postalCode ,&#xA;                dataHash ,&#xA;                verRec&#xA;    )&#xA;         VALUES (&#xA;                s.employeeKey , &#xA;                s.employeeBK ,&#xA;                s.managerId ,&#xA;                s.lastName ,&#xA;                s.firstName ,&#xA;                s.title ,&#xA;                s.gender ,&#xA;                s.birthDate ,&#xA;                s.hireDate ,&#xA;                s.country ,&#xA;                s.city ,&#xA;                s.region ,&#xA;                s.postalCode ,&#xA;                s.dataHash ,&#xA;                s.verRec&#xA;         );&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\GetEmployeeDataDFTask"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{E212B522-BAA5-409A-9F61-3FA99981F46B}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="GetEmployeeDataDFTask"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          version="1">
+          <components>
+            <component
+              refId="Package\GetEmployeeDataDFTask\Balanced Data Distributor"
+              componentClassID="Microsoft.BDD"
+              contactInfo="Balanced Data Distributor;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Evaluates and directs rows in a dataset to multiple destinations."
+              name="Balanced Data Distributor">
+              <inputs>
+                <input
+                  refId="Package\GetEmployeeDataDFTask\Balanced Data Distributor.Inputs[Balanced Data Distributor Input]"
+                  description="Input to the Balanced Data      Distributor Transformation"
+                  name="Balanced Data Distributor Input">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\GetEmployeeDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 1]"
+                  deleteOutputOnPathDetached="true"
+                  exclusionGroup="1"
+                  name="Balanced Data Distributor Output 1"
+                  synchronousInputId="Package\GetEmployeeDataDFTask\Balanced Data Distributor.Inputs[Balanced Data Distributor Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\GetEmployeeDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 2]"
+                  deleteOutputOnPathDetached="true"
+                  exclusionGroup="1"
+                  name="Balanced Data Distributor Output 2"
+                  synchronousInputId="Package\GetEmployeeDataDFTask\Balanced Data Distributor.Inputs[Balanced Data Distributor Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\GetEmployeeDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 3]"
+                  deleteOutputOnPathDetached="true"
+                  exclusionGroup="1"
+                  name="Balanced Data Distributor Output 3"
+                  synchronousInputId="Package\GetEmployeeDataDFTask\Balanced Data Distributor.Inputs[Balanced Data Distributor Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\GetEmployeeDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 4]"
+                  dangling="true"
+                  deleteOutputOnPathDetached="true"
+                  exclusionGroup="1"
+                  name="Balanced Data Distributor Output 4"
+                  synchronousInputId="Package\GetEmployeeDataDFTask\Balanced Data Distributor.Inputs[Balanced Data Distributor Input]">
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="FillEmployeeStgDest"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[dbo].[employeeStg]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Connections[OleDbConnection]"
+                  connectionManagerID="{AA40BDAB-FCC2-48A7-AA16-B69FCDEA5776}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[LocalHost.NorthwindStg]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].Columns[EmployeeID]"
+                      cachedDataType="i4"
+                      cachedName="EmployeeID"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[employeeId]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[EmployeeID]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].Columns[managerId]"
+                      cachedDataType="i4"
+                      cachedName="managerId"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[managerId]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[managerId]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].Columns[LastName]"
+                      cachedDataType="wstr"
+                      cachedLength="20"
+                      cachedName="LastName"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[lastName]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[LastName]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].Columns[FirstName]"
+                      cachedDataType="wstr"
+                      cachedLength="10"
+                      cachedName="FirstName"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[firstName]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[FirstName]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].Columns[Title]"
+                      cachedDataType="wstr"
+                      cachedLength="30"
+                      cachedName="Title"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[title]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[Title]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].Columns[TitleOfCourtesy]"
+                      cachedDataType="wstr"
+                      cachedLength="25"
+                      cachedName="TitleOfCourtesy"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[titleOfCourtesy]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[TitleOfCourtesy]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].Columns[birthDate]"
+                      cachedDataType="dbDate"
+                      cachedName="birthDate"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[birthDate]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[birthDate]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].Columns[hireDate]"
+                      cachedDataType="dbDate"
+                      cachedName="hireDate"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[hireDate]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[hireDate]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].Columns[Country]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="Country"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[country]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[Country]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].Columns[Region]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="Region"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[region]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[Region]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].Columns[PostalCode]"
+                      cachedDataType="wstr"
+                      cachedLength="10"
+                      cachedName="PostalCode"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[postalCode]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[PostalCode]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].Columns[verRec]"
+                      cachedDataType="i8"
+                      cachedName="verRec"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[verRec]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[verRec]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].Columns[City]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="City"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[city]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[City]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[employeeId]"
+                      dataType="i4"
+                      name="employeeId" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[managerId]"
+                      dataType="i4"
+                      name="managerId" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[lastName]"
+                      dataType="wstr"
+                      length="20"
+                      name="lastName" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[firstName]"
+                      dataType="wstr"
+                      length="10"
+                      name="firstName" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[title]"
+                      dataType="wstr"
+                      length="30"
+                      name="title" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[titleOfCourtesy]"
+                      dataType="wstr"
+                      length="25"
+                      name="titleOfCourtesy" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[birthDate]"
+                      dataType="dbDate"
+                      name="birthDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[hireDate]"
+                      dataType="dbDate"
+                      name="hireDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[country]"
+                      dataType="wstr"
+                      length="15"
+                      name="country" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[region]"
+                      dataType="wstr"
+                      length="15"
+                      name="region" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[postalCode]"
+                      dataType="wstr"
+                      length="10"
+                      name="postalCode" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[verRec]"
+                      dataType="i8"
+                      name="verRec" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[dataHash]"
+                      dataType="bytes"
+                      length="64"
+                      name="dataHash" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input].ExternalColumns[city]"
+                      dataType="wstr"
+                      length="15"
+                      name="city" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="FillEmployeeStgDest 1"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[dbo].[employeeStg]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Connections[OleDbConnection]"
+                  connectionManagerID="{AA40BDAB-FCC2-48A7-AA16-B69FCDEA5776}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[LocalHost.NorthwindStg]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].Columns[EmployeeID]"
+                      cachedDataType="i4"
+                      cachedName="EmployeeID"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[employeeId]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[EmployeeID]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].Columns[managerId]"
+                      cachedDataType="i4"
+                      cachedName="managerId"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[managerId]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[managerId]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].Columns[LastName]"
+                      cachedDataType="wstr"
+                      cachedLength="20"
+                      cachedName="LastName"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[lastName]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[LastName]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].Columns[FirstName]"
+                      cachedDataType="wstr"
+                      cachedLength="10"
+                      cachedName="FirstName"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[firstName]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[FirstName]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].Columns[Title]"
+                      cachedDataType="wstr"
+                      cachedLength="30"
+                      cachedName="Title"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[title]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[Title]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].Columns[TitleOfCourtesy]"
+                      cachedDataType="wstr"
+                      cachedLength="25"
+                      cachedName="TitleOfCourtesy"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[titleOfCourtesy]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[TitleOfCourtesy]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].Columns[birthDate]"
+                      cachedDataType="dbDate"
+                      cachedName="birthDate"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[birthDate]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[birthDate]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].Columns[hireDate]"
+                      cachedDataType="dbDate"
+                      cachedName="hireDate"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[hireDate]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[hireDate]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].Columns[Country]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="Country"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[country]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[Country]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].Columns[Region]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="Region"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[region]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[Region]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].Columns[PostalCode]"
+                      cachedDataType="wstr"
+                      cachedLength="10"
+                      cachedName="PostalCode"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[postalCode]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[PostalCode]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].Columns[verRec]"
+                      cachedDataType="i8"
+                      cachedName="verRec"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[verRec]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[verRec]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].Columns[City]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="City"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[city]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[City]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[employeeId]"
+                      dataType="i4"
+                      name="employeeId" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[managerId]"
+                      dataType="i4"
+                      name="managerId" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[lastName]"
+                      dataType="wstr"
+                      length="20"
+                      name="lastName" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[firstName]"
+                      dataType="wstr"
+                      length="10"
+                      name="firstName" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[title]"
+                      dataType="wstr"
+                      length="30"
+                      name="title" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[titleOfCourtesy]"
+                      dataType="wstr"
+                      length="25"
+                      name="titleOfCourtesy" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[birthDate]"
+                      dataType="dbDate"
+                      name="birthDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[hireDate]"
+                      dataType="dbDate"
+                      name="hireDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[country]"
+                      dataType="wstr"
+                      length="15"
+                      name="country" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[region]"
+                      dataType="wstr"
+                      length="15"
+                      name="region" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[postalCode]"
+                      dataType="wstr"
+                      length="10"
+                      name="postalCode" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[verRec]"
+                      dataType="i8"
+                      name="verRec" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[dataHash]"
+                      dataType="bytes"
+                      length="64"
+                      name="dataHash" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[city]"
+                      dataType="wstr"
+                      length="15"
+                      name="city" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="FillEmployeeStgDest 2"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[dbo].[employeeStg]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Connections[OleDbConnection]"
+                  connectionManagerID="{AA40BDAB-FCC2-48A7-AA16-B69FCDEA5776}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[LocalHost.NorthwindStg]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].Columns[EmployeeID]"
+                      cachedDataType="i4"
+                      cachedName="EmployeeID"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[employeeId]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[EmployeeID]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].Columns[managerId]"
+                      cachedDataType="i4"
+                      cachedName="managerId"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[managerId]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[managerId]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].Columns[LastName]"
+                      cachedDataType="wstr"
+                      cachedLength="20"
+                      cachedName="LastName"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[lastName]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[LastName]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].Columns[FirstName]"
+                      cachedDataType="wstr"
+                      cachedLength="10"
+                      cachedName="FirstName"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[firstName]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[FirstName]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].Columns[Title]"
+                      cachedDataType="wstr"
+                      cachedLength="30"
+                      cachedName="Title"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[title]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[Title]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].Columns[TitleOfCourtesy]"
+                      cachedDataType="wstr"
+                      cachedLength="25"
+                      cachedName="TitleOfCourtesy"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[titleOfCourtesy]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[TitleOfCourtesy]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].Columns[birthDate]"
+                      cachedDataType="dbDate"
+                      cachedName="birthDate"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[birthDate]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[birthDate]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].Columns[hireDate]"
+                      cachedDataType="dbDate"
+                      cachedName="hireDate"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[hireDate]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[hireDate]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].Columns[Country]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="Country"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[country]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[Country]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].Columns[Region]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="Region"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[region]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[Region]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].Columns[PostalCode]"
+                      cachedDataType="wstr"
+                      cachedLength="10"
+                      cachedName="PostalCode"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[postalCode]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[PostalCode]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].Columns[verRec]"
+                      cachedDataType="i8"
+                      cachedName="verRec"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[verRec]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[verRec]" />
+                    <inputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].Columns[City]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="City"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[city]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[City]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[employeeId]"
+                      dataType="i4"
+                      name="employeeId" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[managerId]"
+                      dataType="i4"
+                      name="managerId" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[lastName]"
+                      dataType="wstr"
+                      length="20"
+                      name="lastName" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[firstName]"
+                      dataType="wstr"
+                      length="10"
+                      name="firstName" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[title]"
+                      dataType="wstr"
+                      length="30"
+                      name="title" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[titleOfCourtesy]"
+                      dataType="wstr"
+                      length="25"
+                      name="titleOfCourtesy" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[birthDate]"
+                      dataType="dbDate"
+                      name="birthDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[hireDate]"
+                      dataType="dbDate"
+                      name="hireDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[country]"
+                      dataType="wstr"
+                      length="15"
+                      name="country" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[region]"
+                      dataType="wstr"
+                      length="15"
+                      name="region" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[postalCode]"
+                      dataType="wstr"
+                      length="10"
+                      name="postalCode" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[verRec]"
+                      dataType="i8"
+                      name="verRec" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[dataHash]"
+                      dataType="bytes"
+                      length="64"
+                      name="dataHash" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[city]"
+                      dataType="wstr"
+                      length="15"
+                      name="city" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="OLE DB Source"
+              name="GetEmployeeDataSource"
+              usesDispositions="true"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset"></property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">select 
+    EmployeeID , 
+    ReportsTo as managerId ,
+    LastName ,
+    FirstName ,
+    Title ,
+    TitleOfCourtesy , 
+    CAST(BirthDate as date ) as birthDate ,
+    CAST(HireDate as date) as hireDate,
+    Country , 
+    Region , 
+    City ,
+    PostalCode , 
+    cast(verRec as bigint) as verRec
+from Northwind..Employees
+WHERE verRec &gt; CAST( CAST(? as bigint) as timestamp)</property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">2</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping">"Parameter0:Input",{E7EE8190-5E7F-46FA-A942-20D8670D4B87};</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Connections[OleDbConnection]"
+                  connectionManagerID="{FA27C073-7618-4C51-BD0B-1344F590F6C3}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[LocalHost.Northwind]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[EmployeeID]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[EmployeeID]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[EmployeeID]"
+                      name="EmployeeID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[managerId]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[managerId]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[managerId]"
+                      name="managerId"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[LastName]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[LastName]"
+                      length="20"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[LastName]"
+                      name="LastName"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[FirstName]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[FirstName]"
+                      length="10"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[FirstName]"
+                      name="FirstName"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[Title]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[Title]"
+                      length="30"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[Title]"
+                      name="Title"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[TitleOfCourtesy]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[TitleOfCourtesy]"
+                      length="25"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[TitleOfCourtesy]"
+                      name="TitleOfCourtesy"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[birthDate]"
+                      dataType="dbDate"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[birthDate]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[birthDate]"
+                      name="birthDate"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[hireDate]"
+                      dataType="dbDate"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[hireDate]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[hireDate]"
+                      name="hireDate"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[Country]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[Country]"
+                      length="15"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[Country]"
+                      name="Country"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[Region]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[Region]"
+                      length="15"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[Region]"
+                      name="Region"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[City]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[City]"
+                      length="15"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[City]"
+                      name="City"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[PostalCode]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[PostalCode]"
+                      length="10"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[PostalCode]"
+                      name="PostalCode"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[verRec]"
+                      dataType="i8"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[verRec]"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].Columns[verRec]"
+                      name="verRec"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[EmployeeID]"
+                      dataType="i4"
+                      name="EmployeeID" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[managerId]"
+                      dataType="i4"
+                      name="managerId" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[LastName]"
+                      dataType="wstr"
+                      length="20"
+                      name="LastName" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[FirstName]"
+                      dataType="wstr"
+                      length="10"
+                      name="FirstName" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[Title]"
+                      dataType="wstr"
+                      length="30"
+                      name="Title" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[TitleOfCourtesy]"
+                      dataType="wstr"
+                      length="25"
+                      name="TitleOfCourtesy" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[birthDate]"
+                      dataType="dbDate"
+                      name="birthDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[hireDate]"
+                      dataType="dbDate"
+                      name="hireDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[Country]"
+                      dataType="wstr"
+                      length="15"
+                      name="Country" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[Region]"
+                      dataType="wstr"
+                      length="15"
+                      name="Region" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[City]"
+                      dataType="wstr"
+                      length="15"
+                      name="City" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[PostalCode]"
+                      dataType="wstr"
+                      length="10"
+                      name="PostalCode" />
+                    <externalMetadataColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output].ExternalColumns[verRec]"
+                      dataType="i8"
+                      name="verRec" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[EmployeeID]"
+                      dataType="i4"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[EmployeeID]"
+                      name="EmployeeID" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[managerId]"
+                      dataType="i4"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[managerId]"
+                      name="managerId" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[LastName]"
+                      dataType="wstr"
+                      length="20"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[LastName]"
+                      name="LastName" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[FirstName]"
+                      dataType="wstr"
+                      length="10"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[FirstName]"
+                      name="FirstName" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[Title]"
+                      dataType="wstr"
+                      length="30"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[Title]"
+                      name="Title" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[TitleOfCourtesy]"
+                      dataType="wstr"
+                      length="25"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[TitleOfCourtesy]"
+                      name="TitleOfCourtesy" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[birthDate]"
+                      dataType="dbDate"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[birthDate]"
+                      name="birthDate" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[hireDate]"
+                      dataType="dbDate"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[hireDate]"
+                      name="hireDate" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[Country]"
+                      dataType="wstr"
+                      length="15"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[Country]"
+                      name="Country" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[Region]"
+                      dataType="wstr"
+                      length="15"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[Region]"
+                      name="Region" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[City]"
+                      dataType="wstr"
+                      length="15"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[City]"
+                      name="City" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[PostalCode]"
+                      dataType="wstr"
+                      length="10"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[PostalCode]"
+                      name="PostalCode" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[verRec]"
+                      dataType="i8"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[verRec]"
+                      name="verRec" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\GetEmployeeDataDFTask.Paths[Balanced Data Distributor Output 1]"
+              endId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest.Inputs[OLE DB Destination Input]"
+              name="Balanced Data Distributor Output 1"
+              startId="Package\GetEmployeeDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 1]" />
+            <path
+              refId="Package\GetEmployeeDataDFTask.Paths[Balanced Data Distributor Output 2]"
+              endId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1.Inputs[OLE DB Destination Input]"
+              name="Balanced Data Distributor Output 2"
+              startId="Package\GetEmployeeDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 2]" />
+            <path
+              refId="Package\GetEmployeeDataDFTask.Paths[Balanced Data Distributor Output 3]"
+              endId="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2.Inputs[OLE DB Destination Input]"
+              name="Balanced Data Distributor Output 3"
+              startId="Package\GetEmployeeDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 3]" />
+            <path
+              refId="Package\GetEmployeeDataDFTask.Paths[OLE DB Source Output]"
+              endId="Package\GetEmployeeDataDFTask\Balanced Data Distributor.Inputs[Balanced Data Distributor Input]"
+              name="OLE DB Source Output"
+              startId="Package\GetEmployeeDataDFTask\GetEmployeeDataSource.Outputs[OLE DB Source Output]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\GetLastRowVerEmployeesSqlTask"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{1FC313CB-B795-4BA5-A882-7EAD1B9C99CC}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="GetLastRowVerEmployeesSqlTask"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2022; © 2022 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{DF6F9E40-1A5E-475E-8637-E4626DEB6188}"
+          SQLTask:SqlStatementSource="SELECT&#xA;    lastFetchedRowVer&#xA;FROM DWConf&#xA;WHERE tableName = 'Employees'"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="lastFetchedRowVer"
+            SQLTask:DtsVariableName="User::lastFetchedRowVer" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\TruncateEmployeeStgSqlTask"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{D8061B3B-6B48-44B1-9EE3-77F0862A1298}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="TruncateEmployeeStgSqlTask"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2022; © 2022 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{AA40BDAB-FCC2-48A7-AA16-B69FCDEA5776}"
+          SQLTask:SqlStatementSource="TRUNCATE TABLE NorthwindStg..employeeStg&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\UpdateEmployeeLastRowVerSqlTask"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{E4734D4D-C22D-44D8-8A3C-DD910CE76562}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="UpdateEmployeeLastRowVerSqlTask"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2022; © 2022 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{DF6F9E40-1A5E-475E-8637-E4626DEB6188}"
+          SQLTask:SqlStatementSource="UPDATE NorthwindDWConf..DWConf&#xA;SET &#xA;lastFetchedRowVer = (&#xA;                        select &#xA;                            max(verRec)&#xA;                        from NorthwindDW..dimEmployee &#xA;                    )&#xA;WHERE tableName = 'Employees'" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{ECC22141-5D71-4B30-88EF-A0184D4F9DE1}"
+      DTS:From="Package\GetLastRowVerEmployeesSqlTask"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\GetEmployeeDataDFTask" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
+      DTS:CreationName=""
+      DTS:DTSID="{2734A96D-D32C-4106-B09B-44C0154E1AB2}"
+      DTS:From="Package\TruncateEmployeeStgSqlTask"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 1"
+      DTS:To="Package\GetEmployeeDataDFTask" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 2]"
+      DTS:CreationName=""
+      DTS:DTSID="{20212057-1760-4062-8578-31EB2A3D3C68}"
+      DTS:From="Package\GetEmployeeDataDFTask"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 2"
+      DTS:To="Package\CalculateEmployeeStgHashesSqlTask" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 3]"
+      DTS:CreationName=""
+      DTS:DTSID="{07571CD2-66C0-476D-B7AF-AF20785E12C1}"
+      DTS:From="Package\CalculateEmployeeStgHashesSqlTask"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 3"
+      DTS:To="Package\FillDimEmployeeSqlTask" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 4]"
+      DTS:CreationName=""
+      DTS:DTSID="{DCC9E426-0AC1-4165-9ACA-AD12B935DC75}"
+      DTS:From="Package\FillDimEmployeeSqlTask"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 4"
+      DTS:To="Package\UpdateEmployeeLastRowVerSqlTask" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="252,41.6"
+          Id="Package\CalculateEmployeeStgHashesSqlTask"
+          TopLeft="196.428571846716,291.352940921088" />
+        <NodeLayout
+          Size="192,41.6"
+          Id="Package\FillDimEmployeeSqlTask"
+          TopLeft="232.857143352835,376.388234982431" />
+        <NodeLayout
+          Size="196.8,41.6"
+          Id="Package\GetEmployeeDataDFTask"
+          TopLeft="222.321429044693,177.794117491215" />
+        <NodeLayout
+          Size="236.8,41.6"
+          Id="Package\GetLastRowVerEmployeesSqlTask"
+          TopLeft="32.1428572112808,42.0588234925456" />
+        <NodeLayout
+          Size="217.6,41.6"
+          Id="Package\TruncateEmployeeStgSqlTask"
+          TopLeft="387.142857966983,39.7647058474976" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="150.542857211281,83.6588234925456">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="138.711905166745,94.1352939986694"
+              Start="0,0"
+              End="138.711905166745,86.6352939986694">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.0256830411436" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,52.0256830411436"
+                    Point2="0,56.0256830411436"
+                    Point3="4,56.0256830411436" />
+                  <mssgle:LineSegment
+                    End="134.711905166745,56.0256830411436" />
+                  <mssgle:CubicBezierSegment
+                    Point1="134.711905166745,56.0256830411436"
+                    Point2="138.711905166745,56.0256830411436"
+                    Point3="138.711905166745,60.0256830411436" />
+                  <mssgle:LineSegment
+                    End="138.711905166745,86.6352939986694" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 1]"
+          TopLeft="495.942857966983,81.3647058474976">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-143.754762255623,96.4294116437174"
+              Start="0,0"
+              End="-143.754762255623,88.9294116437174">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,53.3910530589221" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,53.3910530589221"
+                    Point2="0,57.3910530589221"
+                    Point3="-4,57.3910530589221" />
+                  <mssgle:LineSegment
+                    End="-139.754762255623,57.3910530589221" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-139.754762255623,57.3910530589221"
+                    Point2="-143.754762255623,57.3910530589221"
+                    Point3="-143.754762255623,61.3910530589221" />
+                  <mssgle:LineSegment
+                    End="-143.754762255623,88.9294116437174" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 2]"
+          TopLeft="321.575000445705,219.394117491215">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,71.958823429873"
+              Start="0,0"
+              End="0,64.458823429873">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,64.458823429873" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 3]"
+          TopLeft="325.642857599775,332.952940921088">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,43.4352940613429"
+              Start="0,0"
+              End="0,35.9352940613429">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,35.9352940613429" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="248.8,41.6"
+          Id="Package\UpdateEmployeeLastRowVerSqlTask"
+          TopLeft="211.428571878647,462.462744785235" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 4]"
+          TopLeft="332.342857615741,417.988234982431">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,44.4745098028042"
+              Start="0,0"
+              End="0,36.9745098028042">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,36.9745098028042" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+  <TaskHost
+    design-time-name="Package\GetEmployeeDataDFTask">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        <NodeLayout
+          Size="173.6,41.6"
+          Id="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2"
+          TopLeft="526.357142948374,209.464705881683" />
+        <NodeLayout
+          Size="173.6,41.6"
+          Id="Package\GetEmployeeDataDFTask\FillEmployeeStgDest"
+          TopLeft="5.50000000000001,208.7" />
+        <NodeLayout
+          Size="194.4,41.6"
+          Id="Package\GetEmployeeDataDFTask\GetEmployeeDataSource"
+          TopLeft="234.1,5.49999999999984" />
+        <NodeLayout
+          Size="198.4,41.6"
+          Id="Package\GetEmployeeDataDFTask\Balanced Data Distributor"
+          TopLeft="227.857143342191,99.4117646187441" />
+        <NodeLayout
+          Size="182.4,41.6"
+          Id="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1"
+          TopLeft="275.814285790312,210.229411763365" />
+        <EdgeLayout
+          Id="Package\GetEmployeeDataDFTask.Paths[Balanced Data Distributor Output 2]"
+          TopLeft="327.057143342191,141.011764618744">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="39.9571424481212,69.2176471446212"
+              Start="0,0"
+              End="39.9571424481212,61.7176471446212">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,30.6088235723106" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,30.6088235723106"
+                    Point2="0,34.6088235723106"
+                    Point3="4,34.6088235723106" />
+                  <mssgle:LineSegment
+                    End="35.9571424481212,34.6088235723106" />
+                  <mssgle:CubicBezierSegment
+                    Point1="35.9571424481212,34.6088235723106"
+                    Point2="39.9571424481212,34.6088235723106"
+                    Point3="39.9571424481212,38.6088235723106" />
+                  <mssgle:LineSegment
+                    End="39.9571424481212,61.7176471446212" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-57.9075420571894,39.6088235723106,155.7722265625,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\GetEmployeeDataDFTask.Paths[Balanced Data Distributor Output 1]"
+          TopLeft="279.457143342191,141.011764618744">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-187.157143342191,67.6882353812559"
+              Start="0,0"
+              End="-187.157143342191,60.1882353812559">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,19.161226430191" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,19.161226430191"
+                    Point2="0,23.161226430191"
+                    Point3="-4,23.161226430191" />
+                  <mssgle:LineSegment
+                    End="-183.157143342191,23.161226430191" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-183.157143342191,23.161226430191"
+                    Point2="-187.157143342191,23.161226430191"
+                    Point3="-187.157143342191,27.161226430191" />
+                  <mssgle:LineSegment
+                    End="-187.157143342191,60.1882353812559" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-171.279138077346,28.161226430191,155.4011328125,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\GetEmployeeDataDFTask.Paths[OLE DB Source Output]"
+          TopLeft="329.178571671095,47.0999999999998">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,52.3117646187443"
+              Start="0,0"
+              End="0,44.8117646187443">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,44.8117646187443" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\GetEmployeeDataDFTask.Paths[Balanced Data Distributor Output 3]"
+          TopLeft="374.657143342191,141.011764618744">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="238.499999606183,68.4529412629385"
+              Start="0,0"
+              End="238.499999606183,60.9529412629385">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,19.4228897159657" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,19.4228897159657"
+                    Point2="0,23.4228897159657"
+                    Point3="4,23.4228897159657" />
+                  <mssgle:LineSegment
+                    End="234.499999606183,23.4228897159657" />
+                  <mssgle:CubicBezierSegment
+                    Point1="234.499999606183,23.4228897159657"
+                    Point2="238.499999606183,23.4228897159657"
+                    Point3="238.499999606183,27.4228897159657" />
+                  <mssgle:LineSegment
+                    End="238.499999606183,60.9529412629385" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="41.4273630843416,28.4228897159657,155.6452734375,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 2">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\GetEmployeeDataDFTask\FillEmployeeStgDest 1">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\GetEmployeeDataDFTask\FillEmployeeStgDest">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\GetEmployeeDataDFTask\GetEmployeeDataSource">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>

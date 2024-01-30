@@ -1,0 +1,2194 @@
+﻿<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="1/22/2024 6:14:57 PM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="LAPTOP-2HN1E0QR"
+  DTS:CreatorName="LAPTOP-2HN1E0QR\sw"
+  DTS:DTSID="{61018A74-4D8A-4375-B0B1-771B1402A69C}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="16.0.5397.1"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="FillOrderStg"
+  DTS:PackageType="5"
+  DTS:VersionBuild="9"
+  DTS:VersionGUID="{6787A145-E57A-468D-A7ED-E041C00A6CD5}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{A58247E6-60B2-41F6-8264-7E07B9BD320D}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="lastFetchedRowVer">
+      <DTS:VariableValue
+        DTS:DataType="8">0</DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\CalculateOrderStgHashesSqlTask"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{E4756124-4484-4745-A5E4-441633C8BA02}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="CalculateOrderStgHashesSqlTask"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2022; © 2022 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{AA40BDAB-FCC2-48A7-AA16-B69FCDEA5776}"
+          SQLTask:SqlStatementSource="update NorthwindStg..orderStg&#xA;SET &#xA;    dataHash = &#xA;                HASHBYTES('SHA2_512' , &#xA;                            CONCAT( customerId , &#xA;                                    employeeId , &#xA;                                    productId , &#xA;                                    shipperId , &#xA;                                    orderDate , &#xA;                                    requiredDate , &#xA;                                    shippedDate , &#xA;                                    unitPrice , &#xA;                                    quantity , &#xA;                                    discount , &#xA;                                    freight ,&#xA;                                    shipCity , &#xA;                                    shipRegion , &#xA;                                    shipCountry , &#xA;                                    shipPostalCode )&#xA;                        ) ,&#xA;    shipLocationHash = &#xA;                        HASHBYTES('SHA2_512' , &#xA;                                    CONCAT(shipCountry , &#xA;                                           shipCity , &#xA;                                           shipRegion)&#xA;                                )&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\GetLastRowVerOrdersSqlTask"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{C4C74D9A-3233-4906-A8EF-571C6872CB1B}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="GetLastRowVerOrdersSqlTask"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2022; © 2022 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{DF6F9E40-1A5E-475E-8637-E4626DEB6188}"
+          SQLTask:SqlStatementSource="SELECT&#xA;    lastFetchedRowVer&#xA;FROM NorthwindDWConf..DWConf&#xA;WHERE tableName = 'Orders'"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="lastFetchedRowVer"
+            SQLTask:DtsVariableName="User::lastFetchedRowVer" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\GetOrderDataDFTask"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{76DE12AD-AE91-42D0-9E44-4CD7049460C6}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="GetOrderDataDFTask"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          version="1">
+          <components>
+            <component
+              refId="Package\GetOrderDataDFTask\Balanced Data Distributor"
+              componentClassID="Microsoft.BDD"
+              contactInfo="Balanced Data Distributor;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Evaluates and directs rows in a dataset to multiple destinations."
+              name="Balanced Data Distributor">
+              <inputs>
+                <input
+                  refId="Package\GetOrderDataDFTask\Balanced Data Distributor.Inputs[Balanced Data Distributor Input]"
+                  description="Input to the Balanced Data      Distributor Transformation"
+                  name="Balanced Data Distributor Input">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\GetOrderDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 1]"
+                  deleteOutputOnPathDetached="true"
+                  exclusionGroup="1"
+                  name="Balanced Data Distributor Output 1"
+                  synchronousInputId="Package\GetOrderDataDFTask\Balanced Data Distributor.Inputs[Balanced Data Distributor Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\GetOrderDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 5]"
+                  deleteOutputOnPathDetached="true"
+                  exclusionGroup="1"
+                  name="Balanced Data Distributor Output 5"
+                  synchronousInputId="Package\GetOrderDataDFTask\Balanced Data Distributor.Inputs[Balanced Data Distributor Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\GetOrderDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 2]"
+                  deleteOutputOnPathDetached="true"
+                  exclusionGroup="1"
+                  name="Balanced Data Distributor Output 2"
+                  synchronousInputId="Package\GetOrderDataDFTask\Balanced Data Distributor.Inputs[Balanced Data Distributor Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\GetOrderDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 3]"
+                  deleteOutputOnPathDetached="true"
+                  exclusionGroup="1"
+                  name="Balanced Data Distributor Output 3"
+                  synchronousInputId="Package\GetOrderDataDFTask\Balanced Data Distributor.Inputs[Balanced Data Distributor Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\GetOrderDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 4]"
+                  dangling="true"
+                  deleteOutputOnPathDetached="true"
+                  exclusionGroup="1"
+                  name="Balanced Data Distributor Output 4"
+                  synchronousInputId="Package\GetOrderDataDFTask\Balanced Data Distributor.Inputs[Balanced Data Distributor Input]">
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\GetOrderDataDFTask\FillOrderStgDest"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="FillOrderStgDest"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[dbo].[orderStg]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">true</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\GetOrderDataDFTask\FillOrderStgDest.Connections[OleDbConnection]"
+                  connectionManagerID="{AA40BDAB-FCC2-48A7-AA16-B69FCDEA5776}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[LocalHost.NorthwindStg]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].Columns[OrderID]"
+                      cachedDataType="i4"
+                      cachedName="OrderID"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[orderId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[OrderID]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].Columns[CustomerID]"
+                      cachedDataType="wstr"
+                      cachedLength="5"
+                      cachedName="CustomerID"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[customerId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[CustomerID]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].Columns[EmployeeID]"
+                      cachedDataType="i4"
+                      cachedName="EmployeeID"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[employeeId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[EmployeeID]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].Columns[ProductID]"
+                      cachedDataType="i4"
+                      cachedName="ProductID"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[productId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[ProductID]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].Columns[shipperId]"
+                      cachedDataType="i4"
+                      cachedName="shipperId"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[shipperId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipperId]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].Columns[OrderDate]"
+                      cachedDataType="dbTimeStamp"
+                      cachedName="OrderDate"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[orderDate]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[OrderDate]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].Columns[RequiredDate]"
+                      cachedDataType="dbTimeStamp"
+                      cachedName="RequiredDate"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[requiredDate]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[RequiredDate]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].Columns[ShippedDate]"
+                      cachedDataType="dbTimeStamp"
+                      cachedName="ShippedDate"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[shippedDate]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[ShippedDate]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].Columns[UnitPrice]"
+                      cachedDataType="cy"
+                      cachedName="UnitPrice"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[unitPrice]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[UnitPrice]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].Columns[Quantity]"
+                      cachedDataType="i2"
+                      cachedName="Quantity"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[quantity]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[Quantity]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].Columns[Discount]"
+                      cachedDataType="r4"
+                      cachedName="Discount"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[discount]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[Discount]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].Columns[shipCity]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="shipCity"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[shipCity]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipCity]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].Columns[shipRegion]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="shipRegion"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[shipRegion]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipRegion]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].Columns[shipCountry]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="shipCountry"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[shipCountry]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipCountry]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].Columns[shipPostalCode]"
+                      cachedDataType="wstr"
+                      cachedLength="10"
+                      cachedName="shipPostalCode"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[shipPostalCode]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipPostalCode]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].Columns[verRec]"
+                      cachedDataType="i8"
+                      cachedName="verRec"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[verRec]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[verRec]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].Columns[Freight]"
+                      cachedDataType="cy"
+                      cachedName="Freight"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[freight]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[Freight]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[orderId]"
+                      dataType="i4"
+                      name="orderId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[customerId]"
+                      dataType="wstr"
+                      length="5"
+                      name="customerId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[employeeId]"
+                      dataType="i4"
+                      name="employeeId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[productId]"
+                      dataType="i4"
+                      name="productId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[shipperId]"
+                      dataType="i4"
+                      name="shipperId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[orderDate]"
+                      dataType="dbDate"
+                      name="orderDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[requiredDate]"
+                      dataType="dbDate"
+                      name="requiredDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[shippedDate]"
+                      dataType="dbDate"
+                      name="shippedDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[unitPrice]"
+                      dataType="numeric"
+                      name="unitPrice"
+                      precision="19"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[quantity]"
+                      dataType="i4"
+                      name="quantity" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[discount]"
+                      dataType="numeric"
+                      name="discount"
+                      precision="5"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[shipCity]"
+                      dataType="wstr"
+                      length="15"
+                      name="shipCity" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[shipRegion]"
+                      dataType="wstr"
+                      length="15"
+                      name="shipRegion" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[shipCountry]"
+                      dataType="wstr"
+                      length="15"
+                      name="shipCountry" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[shipPostalCode]"
+                      dataType="wstr"
+                      length="10"
+                      name="shipPostalCode" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[verRec]"
+                      dataType="i8"
+                      name="verRec" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[shipLocationHash]"
+                      dataType="bytes"
+                      length="64"
+                      name="shipLocationHash" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[dataHash]"
+                      dataType="bytes"
+                      length="64"
+                      name="dataHash" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input].ExternalColumns[freight]"
+                      dataType="numeric"
+                      name="freight"
+                      precision="19"
+                      scale="2" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\GetOrderDataDFTask\FillOrderStgDest.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\GetOrderDataDFTask\FillOrderStgDest.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\GetOrderDataDFTask\FillOrderStgDest.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\GetOrderDataDFTask\FillOrderStgDest 1"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="FillOrderStgDest 1"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[dbo].[orderStg]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">true</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Connections[OleDbConnection]"
+                  connectionManagerID="{AA40BDAB-FCC2-48A7-AA16-B69FCDEA5776}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[LocalHost.NorthwindStg]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].Columns[OrderID]"
+                      cachedDataType="i4"
+                      cachedName="OrderID"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[orderId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[OrderID]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].Columns[CustomerID]"
+                      cachedDataType="wstr"
+                      cachedLength="5"
+                      cachedName="CustomerID"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[customerId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[CustomerID]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].Columns[EmployeeID]"
+                      cachedDataType="i4"
+                      cachedName="EmployeeID"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[employeeId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[EmployeeID]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].Columns[ProductID]"
+                      cachedDataType="i4"
+                      cachedName="ProductID"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[productId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[ProductID]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].Columns[shipperId]"
+                      cachedDataType="i4"
+                      cachedName="shipperId"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[shipperId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipperId]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].Columns[OrderDate]"
+                      cachedDataType="dbTimeStamp"
+                      cachedName="OrderDate"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[orderDate]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[OrderDate]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].Columns[RequiredDate]"
+                      cachedDataType="dbTimeStamp"
+                      cachedName="RequiredDate"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[requiredDate]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[RequiredDate]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].Columns[ShippedDate]"
+                      cachedDataType="dbTimeStamp"
+                      cachedName="ShippedDate"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[shippedDate]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[ShippedDate]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].Columns[UnitPrice]"
+                      cachedDataType="cy"
+                      cachedName="UnitPrice"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[unitPrice]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[UnitPrice]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].Columns[Quantity]"
+                      cachedDataType="i2"
+                      cachedName="Quantity"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[quantity]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[Quantity]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].Columns[Discount]"
+                      cachedDataType="r4"
+                      cachedName="Discount"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[discount]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[Discount]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].Columns[shipCity]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="shipCity"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[shipCity]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipCity]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].Columns[shipRegion]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="shipRegion"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[shipRegion]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipRegion]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].Columns[shipCountry]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="shipCountry"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[shipCountry]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipCountry]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].Columns[shipPostalCode]"
+                      cachedDataType="wstr"
+                      cachedLength="10"
+                      cachedName="shipPostalCode"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[shipPostalCode]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipPostalCode]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].Columns[verRec]"
+                      cachedDataType="i8"
+                      cachedName="verRec"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[verRec]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[verRec]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].Columns[Freight]"
+                      cachedDataType="cy"
+                      cachedName="Freight"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[freight]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[Freight]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[orderId]"
+                      dataType="i4"
+                      name="orderId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[customerId]"
+                      dataType="wstr"
+                      length="5"
+                      name="customerId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[employeeId]"
+                      dataType="i4"
+                      name="employeeId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[productId]"
+                      dataType="i4"
+                      name="productId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[shipperId]"
+                      dataType="i4"
+                      name="shipperId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[orderDate]"
+                      dataType="dbDate"
+                      name="orderDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[requiredDate]"
+                      dataType="dbDate"
+                      name="requiredDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[shippedDate]"
+                      dataType="dbDate"
+                      name="shippedDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[unitPrice]"
+                      dataType="numeric"
+                      name="unitPrice"
+                      precision="19"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[quantity]"
+                      dataType="i4"
+                      name="quantity" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[discount]"
+                      dataType="numeric"
+                      name="discount"
+                      precision="5"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[shipCity]"
+                      dataType="wstr"
+                      length="15"
+                      name="shipCity" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[shipRegion]"
+                      dataType="wstr"
+                      length="15"
+                      name="shipRegion" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[shipCountry]"
+                      dataType="wstr"
+                      length="15"
+                      name="shipCountry" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[shipPostalCode]"
+                      dataType="wstr"
+                      length="10"
+                      name="shipPostalCode" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[verRec]"
+                      dataType="i8"
+                      name="verRec" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[shipLocationHash]"
+                      dataType="bytes"
+                      length="64"
+                      name="shipLocationHash" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[dataHash]"
+                      dataType="bytes"
+                      length="64"
+                      name="dataHash" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input].ExternalColumns[freight]"
+                      dataType="numeric"
+                      name="freight"
+                      precision="19"
+                      scale="2" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\GetOrderDataDFTask\FillOrderStgDest 2"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="FillOrderStgDest 2"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[dbo].[orderStg]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">true</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Connections[OleDbConnection]"
+                  connectionManagerID="{AA40BDAB-FCC2-48A7-AA16-B69FCDEA5776}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[LocalHost.NorthwindStg]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].Columns[OrderID]"
+                      cachedDataType="i4"
+                      cachedName="OrderID"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[orderId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[OrderID]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].Columns[CustomerID]"
+                      cachedDataType="wstr"
+                      cachedLength="5"
+                      cachedName="CustomerID"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[customerId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[CustomerID]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].Columns[EmployeeID]"
+                      cachedDataType="i4"
+                      cachedName="EmployeeID"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[employeeId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[EmployeeID]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].Columns[ProductID]"
+                      cachedDataType="i4"
+                      cachedName="ProductID"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[productId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[ProductID]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].Columns[shipperId]"
+                      cachedDataType="i4"
+                      cachedName="shipperId"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[shipperId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipperId]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].Columns[OrderDate]"
+                      cachedDataType="dbTimeStamp"
+                      cachedName="OrderDate"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[orderDate]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[OrderDate]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].Columns[RequiredDate]"
+                      cachedDataType="dbTimeStamp"
+                      cachedName="RequiredDate"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[requiredDate]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[RequiredDate]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].Columns[ShippedDate]"
+                      cachedDataType="dbTimeStamp"
+                      cachedName="ShippedDate"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[shippedDate]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[ShippedDate]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].Columns[UnitPrice]"
+                      cachedDataType="cy"
+                      cachedName="UnitPrice"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[unitPrice]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[UnitPrice]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].Columns[Quantity]"
+                      cachedDataType="i2"
+                      cachedName="Quantity"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[quantity]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[Quantity]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].Columns[Discount]"
+                      cachedDataType="r4"
+                      cachedName="Discount"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[discount]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[Discount]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].Columns[shipCity]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="shipCity"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[shipCity]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipCity]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].Columns[shipRegion]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="shipRegion"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[shipRegion]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipRegion]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].Columns[shipCountry]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="shipCountry"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[shipCountry]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipCountry]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].Columns[shipPostalCode]"
+                      cachedDataType="wstr"
+                      cachedLength="10"
+                      cachedName="shipPostalCode"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[shipPostalCode]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipPostalCode]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].Columns[verRec]"
+                      cachedDataType="i8"
+                      cachedName="verRec"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[verRec]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[verRec]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].Columns[Freight]"
+                      cachedDataType="cy"
+                      cachedName="Freight"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[freight]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[Freight]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[orderId]"
+                      dataType="i4"
+                      name="orderId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[customerId]"
+                      dataType="wstr"
+                      length="5"
+                      name="customerId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[employeeId]"
+                      dataType="i4"
+                      name="employeeId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[productId]"
+                      dataType="i4"
+                      name="productId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[shipperId]"
+                      dataType="i4"
+                      name="shipperId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[orderDate]"
+                      dataType="dbDate"
+                      name="orderDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[requiredDate]"
+                      dataType="dbDate"
+                      name="requiredDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[shippedDate]"
+                      dataType="dbDate"
+                      name="shippedDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[unitPrice]"
+                      dataType="numeric"
+                      name="unitPrice"
+                      precision="19"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[quantity]"
+                      dataType="i4"
+                      name="quantity" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[discount]"
+                      dataType="numeric"
+                      name="discount"
+                      precision="5"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[shipCity]"
+                      dataType="wstr"
+                      length="15"
+                      name="shipCity" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[shipRegion]"
+                      dataType="wstr"
+                      length="15"
+                      name="shipRegion" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[shipCountry]"
+                      dataType="wstr"
+                      length="15"
+                      name="shipCountry" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[shipPostalCode]"
+                      dataType="wstr"
+                      length="10"
+                      name="shipPostalCode" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[verRec]"
+                      dataType="i8"
+                      name="verRec" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[shipLocationHash]"
+                      dataType="bytes"
+                      length="64"
+                      name="shipLocationHash" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[dataHash]"
+                      dataType="bytes"
+                      length="64"
+                      name="dataHash" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input].ExternalColumns[freight]"
+                      dataType="numeric"
+                      name="freight"
+                      precision="19"
+                      scale="2" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\GetOrderDataDFTask\FillOrderStgDest 3"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="FillOrderStgDest 3"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[dbo].[orderStg]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">true</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Connections[OleDbConnection]"
+                  connectionManagerID="{AA40BDAB-FCC2-48A7-AA16-B69FCDEA5776}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[LocalHost.NorthwindStg]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].Columns[OrderID]"
+                      cachedDataType="i4"
+                      cachedName="OrderID"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[orderId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[OrderID]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].Columns[CustomerID]"
+                      cachedDataType="wstr"
+                      cachedLength="5"
+                      cachedName="CustomerID"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[customerId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[CustomerID]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].Columns[EmployeeID]"
+                      cachedDataType="i4"
+                      cachedName="EmployeeID"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[employeeId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[EmployeeID]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].Columns[ProductID]"
+                      cachedDataType="i4"
+                      cachedName="ProductID"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[productId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[ProductID]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].Columns[shipperId]"
+                      cachedDataType="i4"
+                      cachedName="shipperId"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[shipperId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipperId]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].Columns[OrderDate]"
+                      cachedDataType="dbTimeStamp"
+                      cachedName="OrderDate"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[orderDate]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[OrderDate]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].Columns[RequiredDate]"
+                      cachedDataType="dbTimeStamp"
+                      cachedName="RequiredDate"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[requiredDate]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[RequiredDate]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].Columns[ShippedDate]"
+                      cachedDataType="dbTimeStamp"
+                      cachedName="ShippedDate"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[shippedDate]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[ShippedDate]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].Columns[UnitPrice]"
+                      cachedDataType="cy"
+                      cachedName="UnitPrice"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[unitPrice]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[UnitPrice]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].Columns[Quantity]"
+                      cachedDataType="i2"
+                      cachedName="Quantity"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[quantity]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[Quantity]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].Columns[Discount]"
+                      cachedDataType="r4"
+                      cachedName="Discount"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[discount]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[Discount]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].Columns[shipCity]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="shipCity"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[shipCity]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipCity]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].Columns[shipRegion]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="shipRegion"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[shipRegion]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipRegion]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].Columns[shipCountry]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="shipCountry"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[shipCountry]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipCountry]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].Columns[shipPostalCode]"
+                      cachedDataType="wstr"
+                      cachedLength="10"
+                      cachedName="shipPostalCode"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[shipPostalCode]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipPostalCode]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].Columns[verRec]"
+                      cachedDataType="i8"
+                      cachedName="verRec"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[verRec]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[verRec]" />
+                    <inputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].Columns[Freight]"
+                      cachedDataType="cy"
+                      cachedName="Freight"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[freight]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[Freight]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[orderId]"
+                      dataType="i4"
+                      name="orderId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[customerId]"
+                      dataType="wstr"
+                      length="5"
+                      name="customerId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[employeeId]"
+                      dataType="i4"
+                      name="employeeId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[productId]"
+                      dataType="i4"
+                      name="productId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[shipperId]"
+                      dataType="i4"
+                      name="shipperId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[orderDate]"
+                      dataType="dbDate"
+                      name="orderDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[requiredDate]"
+                      dataType="dbDate"
+                      name="requiredDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[shippedDate]"
+                      dataType="dbDate"
+                      name="shippedDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[unitPrice]"
+                      dataType="numeric"
+                      name="unitPrice"
+                      precision="19"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[quantity]"
+                      dataType="i4"
+                      name="quantity" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[discount]"
+                      dataType="numeric"
+                      name="discount"
+                      precision="5"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[shipCity]"
+                      dataType="wstr"
+                      length="15"
+                      name="shipCity" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[shipRegion]"
+                      dataType="wstr"
+                      length="15"
+                      name="shipRegion" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[shipCountry]"
+                      dataType="wstr"
+                      length="15"
+                      name="shipCountry" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[shipPostalCode]"
+                      dataType="wstr"
+                      length="10"
+                      name="shipPostalCode" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[verRec]"
+                      dataType="i8"
+                      name="verRec" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[shipLocationHash]"
+                      dataType="bytes"
+                      length="64"
+                      name="shipLocationHash" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[dataHash]"
+                      dataType="bytes"
+                      length="64"
+                      name="dataHash" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input].ExternalColumns[freight]"
+                      dataType="numeric"
+                      name="freight"
+                      precision="19"
+                      scale="2" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\GetOrderDataDFTask\GetOrderDataSource"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="OLE DB Source"
+              name="GetOrderDataSource"
+              usesDispositions="true"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset"></property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">select 
+    o.OrderID ,
+    o.CustomerID ,
+    o.EmployeeID ,
+    od.ProductID ,
+    o.ShipVia as shipperId ,
+    o.OrderDate ,
+    o.RequiredDate , 
+    o.ShippedDate ,
+    o.Freight ,
+    od.UnitPrice , 
+    od.Quantity , 
+    od.Discount , 
+    coalesce (o.ShipCity , 'None') as shipCity , 
+    coalesce (o.ShipRegion , 'None') as shipRegion , 
+    coalesce (o.ShipCountry , 'None') as shipCountry , 
+    coalesce (o.ShipPostalCode , 'None') as shipPostalCode , 
+    cast(o.verRec as bigint) as verRec
+FROM Northwind..Orders as o
+LEFT JOIN Northwind..[Order Details] as od on od.OrderID = o.OrderID
+WHERE o.verRec &gt; cast( cast( ? as bigint ) as timestamp )</property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">2</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping">"0:Input",{A58247E6-60B2-41F6-8264-7E07B9BD320D};</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\GetOrderDataDFTask\GetOrderDataSource.Connections[OleDbConnection]"
+                  connectionManagerID="{FA27C073-7618-4C51-BD0B-1344F590F6C3}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[LocalHost.Northwind]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[OrderID]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[OrderID]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[OrderID]"
+                      name="OrderID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[CustomerID]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[CustomerID]"
+                      length="5"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[CustomerID]"
+                      name="CustomerID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[EmployeeID]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[EmployeeID]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[EmployeeID]"
+                      name="EmployeeID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[ProductID]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[ProductID]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[ProductID]"
+                      name="ProductID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipperId]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[shipperId]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipperId]"
+                      name="shipperId"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[OrderDate]"
+                      dataType="dbTimeStamp"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[OrderDate]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[OrderDate]"
+                      name="OrderDate"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[RequiredDate]"
+                      dataType="dbTimeStamp"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[RequiredDate]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[RequiredDate]"
+                      name="RequiredDate"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[ShippedDate]"
+                      dataType="dbTimeStamp"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[ShippedDate]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[ShippedDate]"
+                      name="ShippedDate"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[UnitPrice]"
+                      dataType="cy"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[UnitPrice]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[UnitPrice]"
+                      name="UnitPrice"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[Quantity]"
+                      dataType="i2"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[Quantity]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[Quantity]"
+                      name="Quantity"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[Discount]"
+                      dataType="r4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[Discount]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[Discount]"
+                      name="Discount"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipCity]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[shipCity]"
+                      length="15"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipCity]"
+                      name="shipCity"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipRegion]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[shipRegion]"
+                      length="15"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipRegion]"
+                      name="shipRegion"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipCountry]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[shipCountry]"
+                      length="15"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipCountry]"
+                      name="shipCountry"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipPostalCode]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[shipPostalCode]"
+                      length="10"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[shipPostalCode]"
+                      name="shipPostalCode"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[verRec]"
+                      dataType="i8"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[verRec]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[verRec]"
+                      name="verRec"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[Freight]"
+                      dataType="cy"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[Freight]"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].Columns[Freight]"
+                      name="Freight"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[OrderID]"
+                      dataType="i4"
+                      name="OrderID" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[CustomerID]"
+                      dataType="wstr"
+                      length="5"
+                      name="CustomerID" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[EmployeeID]"
+                      dataType="i4"
+                      name="EmployeeID" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[ProductID]"
+                      dataType="i4"
+                      name="ProductID" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[shipperId]"
+                      dataType="i4"
+                      name="shipperId" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[OrderDate]"
+                      dataType="dbTimeStamp"
+                      name="OrderDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[RequiredDate]"
+                      dataType="dbTimeStamp"
+                      name="RequiredDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[ShippedDate]"
+                      dataType="dbTimeStamp"
+                      name="ShippedDate" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[UnitPrice]"
+                      dataType="cy"
+                      name="UnitPrice" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[Quantity]"
+                      dataType="i2"
+                      name="Quantity" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[Discount]"
+                      dataType="r4"
+                      name="Discount" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[shipCity]"
+                      dataType="wstr"
+                      length="15"
+                      name="shipCity" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[shipRegion]"
+                      dataType="wstr"
+                      length="15"
+                      name="shipRegion" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[shipCountry]"
+                      dataType="wstr"
+                      length="15"
+                      name="shipCountry" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[shipPostalCode]"
+                      dataType="wstr"
+                      length="10"
+                      name="shipPostalCode" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[verRec]"
+                      dataType="i8"
+                      name="verRec" />
+                    <externalMetadataColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output].ExternalColumns[Freight]"
+                      dataType="cy"
+                      name="Freight" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[OrderID]"
+                      dataType="i4"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[OrderID]"
+                      name="OrderID" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[CustomerID]"
+                      dataType="wstr"
+                      length="5"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[CustomerID]"
+                      name="CustomerID" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[EmployeeID]"
+                      dataType="i4"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[EmployeeID]"
+                      name="EmployeeID" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[ProductID]"
+                      dataType="i4"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[ProductID]"
+                      name="ProductID" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[shipperId]"
+                      dataType="i4"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[shipperId]"
+                      name="shipperId" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[OrderDate]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[OrderDate]"
+                      name="OrderDate" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[RequiredDate]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[RequiredDate]"
+                      name="RequiredDate" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[ShippedDate]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[ShippedDate]"
+                      name="ShippedDate" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[Freight]"
+                      dataType="cy"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[Freight]"
+                      name="Freight" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[UnitPrice]"
+                      dataType="cy"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[UnitPrice]"
+                      name="UnitPrice" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[Quantity]"
+                      dataType="i2"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[Quantity]"
+                      name="Quantity" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[Discount]"
+                      dataType="r4"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[Discount]"
+                      name="Discount" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[shipCity]"
+                      dataType="wstr"
+                      length="15"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[shipCity]"
+                      name="shipCity" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[shipRegion]"
+                      dataType="wstr"
+                      length="15"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[shipRegion]"
+                      name="shipRegion" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[shipCountry]"
+                      dataType="wstr"
+                      length="15"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[shipCountry]"
+                      name="shipCountry" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[shipPostalCode]"
+                      dataType="wstr"
+                      length="10"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[shipPostalCode]"
+                      name="shipPostalCode" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[verRec]"
+                      dataType="i8"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[verRec]"
+                      name="verRec" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\GetOrderDataDFTask.Paths[Balanced Data Distributor Output 1]"
+              endId="Package\GetOrderDataDFTask\FillOrderStgDest.Inputs[OLE DB Destination Input]"
+              name="Balanced Data Distributor Output 1"
+              startId="Package\GetOrderDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 1]" />
+            <path
+              refId="Package\GetOrderDataDFTask.Paths[Balanced Data Distributor Output 2]"
+              endId="Package\GetOrderDataDFTask\FillOrderStgDest 2.Inputs[OLE DB Destination Input]"
+              name="Balanced Data Distributor Output 2"
+              startId="Package\GetOrderDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 2]" />
+            <path
+              refId="Package\GetOrderDataDFTask.Paths[Balanced Data Distributor Output 3]"
+              endId="Package\GetOrderDataDFTask\FillOrderStgDest 3.Inputs[OLE DB Destination Input]"
+              name="Balanced Data Distributor Output 3"
+              startId="Package\GetOrderDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 3]" />
+            <path
+              refId="Package\GetOrderDataDFTask.Paths[Balanced Data Distributor Output 5]"
+              endId="Package\GetOrderDataDFTask\FillOrderStgDest 1.Inputs[OLE DB Destination Input]"
+              name="Balanced Data Distributor Output 5"
+              startId="Package\GetOrderDataDFTask\Balanced Data Distributor.Outputs[Balanced Data Distributor Output 5]" />
+            <path
+              refId="Package\GetOrderDataDFTask.Paths[OLE DB Source Output]"
+              endId="Package\GetOrderDataDFTask\Balanced Data Distributor.Inputs[Balanced Data Distributor Input]"
+              name="OLE DB Source Output"
+              startId="Package\GetOrderDataDFTask\GetOrderDataSource.Outputs[OLE DB Source Output]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\TruncateOrderStgSqlTask"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{7D9C998C-A918-4BAD-A1D3-AEFFF4B46CF7}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="TruncateOrderStgSqlTask"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2022; © 2022 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{AA40BDAB-FCC2-48A7-AA16-B69FCDEA5776}"
+          SQLTask:SqlStatementSource="TRUNCATE TABLE NorthwindStg..orderStg" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{8E755AFA-B37C-4BB2-A0C1-A4996145691F}"
+      DTS:From="Package\GetLastRowVerOrdersSqlTask"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\GetOrderDataDFTask" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
+      DTS:CreationName=""
+      DTS:DTSID="{D3F2EF81-2067-4AAE-BE5B-38CD7E48E124}"
+      DTS:From="Package\TruncateOrderStgSqlTask"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 1"
+      DTS:To="Package\GetOrderDataDFTask" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 2]"
+      DTS:CreationName=""
+      DTS:DTSID="{1D474F4D-C536-45FA-8AD2-3D90D1A33512}"
+      DTS:From="Package\GetOrderDataDFTask"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 2"
+      DTS:To="Package\CalculateOrderStgHashesSqlTask" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="232.8,41.6"
+          Id="Package\CalculateOrderStgHashesSqlTask"
+          TopLeft="227.857143342191,213.352940989458" />
+        <NodeLayout
+          Size="217.6,41.6"
+          Id="Package\GetLastRowVerOrdersSqlTask"
+          TopLeft="87.1428573283614,20.6470588054315" />
+        <NodeLayout
+          Size="178.4,41.6"
+          Id="Package\GetOrderDataDFTask"
+          TopLeft="245.714286237347,113.176470489032" />
+        <NodeLayout
+          Size="198.4,41.6"
+          Id="Package\TruncateOrderStgSqlTask"
+          TopLeft="361.428572197958,24.4705882138447" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="195.942857328361,62.2470588054315">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="110.571428908986,50.9294116836002"
+              Start="0,0"
+              End="110.571428908986,43.4294116836002">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,26.2860234811809" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,26.2860234811809"
+                    Point2="0,30.2860234811809"
+                    Point3="4,30.2860234811809" />
+                  <mssgle:LineSegment
+                    End="106.571428908986,30.2860234811809" />
+                  <mssgle:CubicBezierSegment
+                    Point1="106.571428908986,30.2860234811809"
+                    Point2="110.571428908986,30.2860234811809"
+                    Point3="110.571428908986,34.2860234811809" />
+                  <mssgle:LineSegment
+                    End="110.571428908986,43.4294116836002" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 1]"
+          TopLeft="460.628572197958,66.0705882138447">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-97.3142859606108,47.105882275187"
+              Start="0,0"
+              End="-97.3142859606108,39.605882275187">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,24.0122979929779" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,24.0122979929779"
+                    Point2="0,28.0122979929779"
+                    Point3="-4,28.0122979929779" />
+                  <mssgle:LineSegment
+                    End="-93.3142859606108,28.0122979929779" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-93.3142859606108,28.0122979929779"
+                    Point2="-97.3142859606108,28.0122979929779"
+                    Point3="-97.3142859606108,32.0122979929779" />
+                  <mssgle:LineSegment
+                    End="-97.3142859606108,39.605882275187" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 2]"
+          TopLeft="334.914286237347,154.776470489032">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="9.34285710484397,58.5764705004267"
+              Start="0,0"
+              End="9.34285710484397,51.0764705004267">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,25.2882352502134" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,25.2882352502134"
+                    Point2="0,29.2882352502134"
+                    Point3="4,29.2882352502134" />
+                  <mssgle:LineSegment
+                    End="5.34285710484397,29.2882352502134" />
+                  <mssgle:CubicBezierSegment
+                    Point1="5.34285710484397,29.2882352502134"
+                    Point2="9.34285710484397,29.2882352502134"
+                    Point3="9.34285710484397,33.2882352502134" />
+                  <mssgle:LineSegment
+                    End="9.34285710484397,51.0764705004267" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+  <TaskHost
+    design-time-name="Package\GetOrderDataDFTask">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        <NodeLayout
+          Size="175.2,41.6"
+          Id="Package\GetOrderDataDFTask\GetOrderDataSource"
+          TopLeft="425.1,5.49999999999984" />
+        <NodeLayout
+          Size="154.4,41.6"
+          Id="Package\GetOrderDataDFTask\FillOrderStgDest"
+          TopLeft="5.50000000000004,208.7" />
+        <NodeLayout
+          Size="198.4,41.6"
+          Id="Package\GetOrderDataDFTask\Balanced Data Distributor"
+          TopLeft="413.5,107.1" />
+        <EdgeLayout
+          Id="Package\GetOrderDataDFTask.Paths[OLE DB Source Output]"
+          TopLeft="512.7,47.0999999999998">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,59.9999999999999"
+              Start="0,0"
+              End="0,52.4999999999999">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.4999999999999" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\GetOrderDataDFTask.Paths[Balanced Data Distributor Output 1]"
+          TopLeft="455.58,148.7">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-372.88,60"
+              Start="0,0"
+              End="-372.88,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,13.8708946772367" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,13.8708946772367"
+                    Point2="0,17.8708946772367"
+                    Point3="-4,17.8708946772367" />
+                  <mssgle:LineSegment
+                    End="-368.88,17.8708946772367" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-368.88,17.8708946772367"
+                    Point2="-372.88,17.8708946772367"
+                    Point3="-372.88,21.8708946772367" />
+                  <mssgle:LineSegment
+                    End="-372.88,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-264.14056640625,22.8708946772367,155.4011328125,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="154.4,41.6"
+          Id="Package\GetOrderDataDFTask\FillOrderStgDest 1"
+          TopLeft="220.5,208.7" />
+        <NodeLayout
+          Size="154.4,41.6"
+          Id="Package\GetOrderDataDFTask\FillOrderStgDest 2"
+          TopLeft="435.5,208.7" />
+        <NodeLayout
+          Size="154.4,41.6"
+          Id="Package\GetOrderDataDFTask\FillOrderStgDest 3"
+          TopLeft="650.5,208.7" />
+        <EdgeLayout
+          Id="Package\GetOrderDataDFTask.Paths[Balanced Data Distributor Output 5]"
+          TopLeft="493.66,148.7">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-195.96,59.9999999999999"
+              Start="0,0"
+              End="-195.96,52.4999999999999">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,22.8153434433541" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,22.8153434433541"
+                    Point2="0,26.8153434433541"
+                    Point3="-4,26.8153434433541" />
+                  <mssgle:LineSegment
+                    End="-191.96,26.8153434433541" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-191.96,26.8153434433541"
+                    Point2="-195.96,26.8153434433541"
+                    Point3="-195.96,30.8153434433541" />
+                  <mssgle:LineSegment
+                    End="-195.96,52.4999999999999" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-175.824609375,31.8153434433541,155.68921875,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\GetOrderDataDFTask.Paths[Balanced Data Distributor Output 2]"
+          TopLeft="531.74,148.7">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-19.04,59.9999999999999"
+              Start="0,0"
+              End="-19.04,52.4999999999999">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,22.8153434433541" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,22.8153434433541"
+                    Point2="0,26.8153434433541"
+                    Point3="-4,26.8153434433541" />
+                  <mssgle:LineSegment
+                    End="-15.04,26.8153434433541" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-15.04,26.8153434433541"
+                    Point2="-19.04,26.8153434433541"
+                    Point3="-19.04,30.8153434433541" />
+                  <mssgle:LineSegment
+                    End="-19.04,52.4999999999999" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-87.40611328125,31.8153434433541,155.7722265625,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\GetOrderDataDFTask.Paths[Balanced Data Distributor Output 3]"
+          TopLeft="569.82,148.7">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="157.88,59.9999999999999"
+              Start="0,0"
+              End="157.88,52.4999999999999">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,13.8708946772367" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,13.8708946772367"
+                    Point2="0,17.8708946772367"
+                    Point3="4,17.8708946772367" />
+                  <mssgle:LineSegment
+                    End="153.88,17.8708946772367" />
+                  <mssgle:CubicBezierSegment
+                    Point1="153.88,17.8708946772367"
+                    Point2="157.88,17.8708946772367"
+                    Point3="157.88,21.8708946772367" />
+                  <mssgle:LineSegment
+                    End="157.88,52.4999999999999" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="1.11736328124998,22.8708946772367,155.6452734375,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\GetOrderDataDFTask\GetOrderDataSource">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\GetOrderDataDFTask\FillOrderStgDest">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>

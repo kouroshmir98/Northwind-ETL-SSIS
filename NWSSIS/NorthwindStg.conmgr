@@ -1,0 +1,16 @@
+﻿<?xml version="1.0"?>
+<DTS:ConnectionManager xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:ObjectName="LocalHost.NorthwindStg"
+  DTS:DTSID="{AA40BDAB-FCC2-48A7-AA16-B69FCDEA5776}"
+  DTS:CreationName="OLEDB">
+  <DTS:PropertyExpression
+    DTS:Name="InitialCatalog">@[$Project::NorthwindStg_InitialCatalog]</DTS:PropertyExpression>
+  <DTS:PropertyExpression
+    DTS:Name="ServerName">@[$Project::NorthwindStg_ServerName]</DTS:PropertyExpression>
+  <DTS:ObjectData>
+    <DTS:ConnectionManager
+      DTS:ConnectRetryCount="1"
+      DTS:ConnectRetryInterval="5"
+      DTS:ConnectionString="Data Source=.;Initial Catalog=NorthwindStg;Provider=MSOLEDBSQL.1;Integrated Security=SSPI;Application Name=SSIS-FillDimEmployee-{AA40BDAB-FCC2-48A7-AA16-B69FCDEA5776}LocalHost.NorthwindStg;Auto Translate=False;" />
+  </DTS:ObjectData>
+</DTS:ConnectionManager>

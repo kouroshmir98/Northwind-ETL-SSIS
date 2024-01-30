@@ -1,0 +1,128 @@
+﻿<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="1/23/2024 5:46:53 PM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="LAPTOP-2HN1E0QR"
+  DTS:CreatorName="LAPTOP-2HN1E0QR\sw"
+  DTS:DTSID="{A55DEAF5-B5C8-4085-BBC6-FA09BF9A71A8}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="16.0.5397.1"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="FillDimDate"
+  DTS:PackageType="5"
+  DTS:VersionBuild="15"
+  DTS:VersionGUID="{E763761A-2EEA-4FD2-93BB-AD4E496D721C}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{21EB62B9-347B-4B2A-AF6E-D5C98D10F230}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="CountDimDate">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{552E4854-43AD-4982-BD06-D53EBE8A24E1}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="MaxDimDate">
+      <DTS:VariableValue
+        DTS:DataType="8"
+        xml:space="preserve"></DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{9000B38C-BA67-4FC5-9710-14B2CE02FE6D}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="MaxDimDateNextDay">
+      <DTS:VariableValue
+        DTS:DataType="8"
+        xml:space="preserve"></DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{F7C59543-4939-4E1B-92A9-D5DD8F279EFA}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="MaxStgDate">
+      <DTS:VariableValue
+        DTS:DataType="8"
+        xml:space="preserve"></DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{8F30E34C-109C-419B-832B-5E29616005C3}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="MinDimDate">
+      <DTS:VariableValue
+        DTS:DataType="8"
+        xml:space="preserve"></DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{F8ABDC10-9C35-491C-B16B-3E2C59AE7538}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="MinDimDatePreDay">
+      <DTS:VariableValue
+        DTS:DataType="8"
+        xml:space="preserve"></DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{DD2CBEB6-B1B6-4EAF-8604-80BDF9791106}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="MinStgDate">
+      <DTS:VariableValue
+        DTS:DataType="8"
+        xml:space="preserve"></DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\FillDimDateSqlTask"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{1655E18A-F8C3-4F6D-A5D1-C19EB296707C}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="FillDimDateSqlTask"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2022; © 2022 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{C9F47B1D-36EF-4BF2-B09C-BAD7F016E6DB}"
+          SQLTask:SqlStatementSource="BEGIN TRANSACTION&#xA;&#x9;DECLARE @MinStgDate DATE , @MaxStgDate DATE , @MinDimDate DATE , @MaxDimDate DATE , @CountDimDate int , @TempDate DATE&#xA;&#x9;select &#xA;&#x9;&#x9;@MaxStgDate = (t.DateRec)&#xA;&#x9;from (&#xA;&#x9;&#x9;&#x9;SELECT &#xA;&#x9;&#x9;&#x9;&#x9;max(orderDate) as DateRec&#xA;&#x9;&#x9;&#x9;from NorthwindStg..orderStg&#xA;&#x9;&#x9;&#x9;WHERE orderDate IS NOT NULL&#xA;&#x9;&#x9;&#x9;UNION&#xA;&#x9;&#x9;&#x9;SELECT &#xA;&#x9;&#x9;&#x9;&#x9;max(requiredDate) as DateRec&#xA;&#x9;&#x9;&#x9;from NorthwindStg..orderStg&#xA;&#x9;&#x9;&#x9;WHERE requiredDate IS NOT NULL&#xA;&#x9;&#x9;&#x9;UNION&#xA;&#x9;&#x9;&#x9;SELECT &#xA;&#x9;&#x9;&#x9;&#x9;max(shippedDate) as DateRec&#xA;&#x9;&#x9;&#x9;from NorthwindStg..orderStg&#xA;&#x9;&#x9;&#x9;WHERE shippedDate IS NOT NULL&#xA;&#x9;&#x9;) as t&#xA;&#x9;&#xA;&#xA;&#xA;&#x9;select &#xA;&#x9;&#x9;@MinStgDate = MIN(t.DateRec)&#xA;&#x9;from (&#xA;&#x9;&#x9;&#x9;SELECT &#xA;&#x9;&#x9;&#x9;&#x9;Min(orderDate) as DateRec&#xA;&#x9;&#x9;&#x9;from NorthwindStg..orderStg&#xA;&#x9;&#x9;&#x9;WHERE orderDate IS NOT NULL&#xA;&#x9;&#x9;&#x9;UNION&#xA;&#x9;&#x9;&#x9;SELECT &#xA;&#x9;&#x9;&#x9;&#x9;Min(requiredDate) as DateRec&#xA;&#x9;&#x9;&#x9;from NorthwindStg..orderStg&#xA;&#x9;&#x9;&#x9;WHERE requiredDate IS NOT NULL&#xA;&#x9;&#x9;&#x9;UNION&#xA;&#x9;&#x9;&#x9;SELECT &#xA;&#x9;&#x9;&#x9;&#x9;Min(shippedDate) as DateRec&#xA;&#x9;&#x9;&#x9;from NorthwindStg..orderStg&#xA;&#x9;&#x9;&#x9;WHERE shippedDate IS NOT NULL&#xA;&#x9;) as t&#xA;&#x9;&#xA;&#xA;&#x9;select&#xA;&#x9;&#x9;@MinDimDate =  MIN(fullDate)&#xA;&#x9;from NorthwindDW..dimDate&#xA;&#x9;&#xA;&#xA;&#x9;select&#xA;&#x9;&#x9;@MaxDimDate = Max(fullDate)&#xA;&#x9;from NorthwindDW..dimDate&#xA;&#xA;&#x9;select&#xA;&#x9;&#x9;@CountDimDate = COUNT(*)&#xA;&#x9;from NorthwindDW..dimDate&#xA;&#xA;&#x9;IF @CountDimDate = 0 &#xA;&#x9;BEGIN&#xA;&#x9;&#x9;EXECUTE usp_fillDimDate @MinStgDate , @MaxStgDate&#xA;&#x9;END&#xA;&#x9;&#x9;&#xA;&#x9;ELSE&#xA;&#x9;&#x9;BEGIN&#xA;&#x9;&#x9;&#x9;IF @MaxDimDate &lt; @MaxStgDate&#xA;&#x9;&#x9;&#x9;BEGIN&#xA;&#x9;&#x9;&#x9;&#x9;select @TempDate = DATEADD(DAY , 1 , @MaxDimDate)&#xA;&#x9;&#x9;&#x9;&#x9;EXECUTE usp_fillDimDate @TempDate , @MaxStgDate&#xA;&#x9;&#x9;&#x9;END&#xA;&#xA;&#x9;&#x9;&#x9;IF @MinDimDate &gt; @MinStgDate&#xA;&#x9;&#x9;&#x9;BEGIN&#xA;&#x9;&#x9;&#x9;&#x9;select @TempDate = DATEADD(DAY , -1 , @MinDimDate)&#xA;&#x9;&#x9;&#x9;&#x9;EXECUTE usp_fillDimDate @MinStgDate , @TempDate&#xA;&#x9;&#x9;&#x9;END&#xA;&#x9;&#x9;END&#xA;COMMIT;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph">
+        <NodeLayout
+          Size="168,41.6"
+          Id="Package\FillDimDateSqlTask"
+          TopLeft="195.000000415104,95.5882352103309" />
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>

@@ -1,0 +1,111 @@
+﻿<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="1/23/2024 1:21:37 PM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="LAPTOP-2HN1E0QR"
+  DTS:CreatorName="LAPTOP-2HN1E0QR\sw"
+  DTS:DTSID="{09C71B66-A4F0-41B1-90D4-F99B39BB1605}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="16.0.5397.1"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="FillDimCustomer"
+  DTS:PackageType="5"
+  DTS:VersionBuild="2"
+  DTS:VersionGUID="{C4178179-4876-46D4-9D50-BEF432460B4C}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables />
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\FillDimCustomerSqlTask"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{11C7C9DF-575D-423A-9091-756A0868CB8E}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="FillDimCustomerSqlTask"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2022; © 2022 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{C9F47B1D-36EF-4BF2-B09C-BAD7F016E6DB}"
+          SQLTask:SqlStatementSource="WITH sourceData as (&#xA;    select &#xA;        c.customerId as customerBK ,&#xA;        c.customerName , &#xA;        c.city as customerCity , &#xA;        c.region as customerRegion , &#xA;        c.country as customerCountry ,&#xA;        c.postalCode , &#xA;        c.verRec , &#xA;        c.dataHash , &#xA;        l.locationKey as customerLocationKey&#xA;    from NorthwindStg..customerStg as c&#xA;    left join NorthwindDW..dimLocation as l on l.dataHash = c.locationHash)&#xA;MERGE NorthwindDW..dimCustomer as t&#xA;    USING sourceData as s&#xA;ON (s.customerBK = t.customerBK)&#xA;WHEN MATCHED AND (s.dataHash &lt;&gt; t.dataHash)&#xA;    THEN UPDATE &#xA;        SET &#xA;            t.customerName = s.customerName , &#xA;            t.customerCity = s.customerCity , &#xA;            t.customerRegion = s.customerRegion , &#xA;            t.customerCountry = s.customerCountry ,&#xA;            t.postalCode = s.postalCode , &#xA;            t.verRec = s.verRec , &#xA;            t.dataHash = s.dataHash , &#xA;            t.customerLocationKey = s.customerLocationKey , &#xA;            t.fetchedAt = GETDATE()&#xA;WHEN NOT MATCHED BY TARGET &#xA;    THEN &#xA;        INSERT (&#xA;            customerBK ,&#xA;            customerName ,&#xA;            customerCity ,&#xA;            customerRegion ,&#xA;            customerCountry ,&#xA;            postalCode ,&#xA;            verRec ,&#xA;            dataHash ,&#xA;            customerLocationKey&#xA;        )&#xA;        VALUES (&#xA;            s.customerBK ,&#xA;            s.customerName ,&#xA;            s.customerCity ,&#xA;            s.customerRegion ,&#xA;            s.customerCountry ,&#xA;            s.postalCode ,&#xA;            s.verRec ,&#xA;            s.dataHash ,&#xA;            s.customerLocationKey&#xA;        ) ;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\UpdateLastRowVerCustomersSqlTask"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{58F9E2C4-749A-4D98-99A8-C53DEBE6742E}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="UpdateLastRowVerCustomersSqlTask"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2022; © 2022 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{DF6F9E40-1A5E-475E-8637-E4626DEB6188}"
+          SQLTask:SqlStatementSource="UPDATE NorthwindDWConf..DWConf&#xA;SET &#xA;    lastFetchedRowVer = (&#xA;        select &#xA;            max(verRec)&#xA;        from NorthwindDW..dimCustomer&#xA;    )&#xA;WHERE tableName = 'Customers'&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{EF3E1EA3-C960-4AF5-8FE7-90369CB9AECB}"
+      DTS:From="Package\FillDimCustomerSqlTask"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\UpdateLastRowVerCustomersSqlTask" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="191.2,41.6"
+          Id="Package\FillDimCustomerSqlTask"
+          TopLeft="179.285714667367,69.5882352331209" />
+        <NodeLayout
+          Size="252.8,41.6"
+          Id="Package\UpdateLastRowVerCustomersSqlTask"
+          TopLeft="142.857143161248,181.235293958787" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="272.071428914307,111.188235233121">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,70.0470587256665"
+              Start="0,0"
+              End="0,62.5470587256665">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,62.5470587256665" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>
