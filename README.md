@@ -1,4 +1,4 @@
-# Northwind ETL
+# Northwind ETL using SSIS
 In this project I designed a sample data warehouse for the Northwind database and also created an ETL pipeline using SSIS to incrementally load data from the OLTP database into the data warehouse.
 
 ## How to setup project
