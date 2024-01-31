@@ -42,5 +42,5 @@ Here is a list of all connection managers which are used inside the project :
 Running `PackageOrchestrator` package will run all packages.
 
 
-***In `queries/etlQueries.sql` you can find all sql queries which are used to create etl pipeline inside SSIS***
+***'Queries/etlQueries.sql' contains all the SQL queries used to create the ETL pipeline within SSIS.***
 
