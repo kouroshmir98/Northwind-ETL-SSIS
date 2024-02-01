@@ -44,3 +44,11 @@ Running `PackageOrchestrator` package will run all packages.
 
 ***'Queries/etlQueries.sql' contains all the SQL queries used to create the ETL pipeline within SSIS.***
 
+## Related projects : 
+- [Northwind EDA using SQL](https://github.com/ali-mir98/Northwind-Exploratory-data-analysis-EDA-sql)
+- [Northwind dashboard using powerbi](https://github.com/ali-mir98/Northwind-dashboard-powerbi)
+
+
+
+
+
